@@ -204,22 +204,23 @@
             opacity: 1;
         }
         
-        .key.active .direction-left {
+        /* 修复：为每个方向创建独立的激活类 */
+        .key.swipe-left .direction-left {
             font-size: 1.4em;
             opacity: 1;
         }
         
-        .key.active .direction-up {
+        .key.swipe-up .direction-up {
             font-size: 1.4em;
             opacity: 1;
         }
         
-        .key.active .direction-right {
+        .key.swipe-right .direction-right {
             font-size: 1.4em;
             opacity: 1;
         }
         
-        .key.active .direction-down {
+        .key.swipe-down .direction-down {
             font-size: 1.4em;
             opacity: 1;
         }
@@ -1046,6 +1047,28 @@
         const resizeHandleEl = document.getElementById('resizeHandle');
         const inputSectionEl = document.getElementById('inputSection');
 
+        // 新增：统一的语音提示文本生成函数
+        function getVoicePromptText() {
+            const baseText = i18n[currentWebLanguage]['voice_prompt'];
+            if (voiceEnabled) {
+                return baseText
+                    .replace(': 关闭', ': 开启')
+                    .replace(': Off', ': On')
+                    .replace(': Вык', ': Вкл')
+                    .replace(': Désactivé', ': Activé')
+                    .replace(': Apagado', ': Activado')
+                    .replace(': مغلق', ': مفعل');
+            } else {
+                return baseText
+                    .replace(': 开启', ': 关闭')
+                    .replace(': On', ': Off')
+                    .replace(': Вкл', ': Вык')
+                    .replace(': Activé', ': Désactivé')
+                    .replace(': Activado', ': Apagado')
+                    .replace(': مفعل', ': مغلق');
+            }
+        }
+
         // 初始化键盘
         function initKeyboard() {
             keyboardEl.innerHTML = '';
@@ -1298,18 +1321,33 @@
         // 处理滑动输入
         function handleSwipe(key, direction, keyEl) {
             let brailleChar = '';
+            let directionClass = '';
+            
             switch (direction) {
-                case 'left': brailleChar = key.left; break;
-                case 'up': brailleChar = key.up; break;
-                case 'right': brailleChar = key.right; break;
-                case 'down': brailleChar = key.down; break;
+                case 'left': 
+                    brailleChar = key.left; 
+                    directionClass = 'swipe-left';
+                    break;
+                case 'up': 
+                    brailleChar = key.up; 
+                    directionClass = 'swipe-up';
+                    break;
+                case 'right': 
+                    brailleChar = key.right; 
+                    directionClass = 'swipe-right';
+                    break;
+                case 'down': 
+                    brailleChar = key.down; 
+                    directionClass = 'swipe-down';
+                    break;
             }
             
             if (brailleChar) {
-                keyEl.classList.add('active');
+                // 修复：只添加对应方向的类
+                keyEl.classList.add(directionClass);
                 handleKeyPress(brailleChar, key.label, direction);
                 setTimeout(() => {
-                    keyEl.classList.remove('active');
+                    keyEl.classList.remove(directionClass);
                 }, 300);
             }
         }
@@ -1326,6 +1364,17 @@
 
         // 处理按键输入
         function handleKeyPress(brailleChar, keyLabel, action) {
+            // 修复：点击时放大中央字符
+            if (action === 'click') {
+                const keyEl = document.getElementById(keyLabel === '空方' ? 'key_space' : `key${keyLabel}`);
+                if (keyEl) {
+                    keyEl.classList.add('active');
+                    setTimeout(() => {
+                        keyEl.classList.remove('active');
+                    }, 300);
+                }
+            }
+            
             updateDisplayBoard(brailleChar);
             
             // 播放语音提示 - 世界语和法语不支持语音提示
@@ -1550,17 +1599,14 @@
                 langBox.setAttribute('draggable', 'true');
                 langBox.setAttribute('data-lang', lang);
                 
-                // 在 initLanguageDisplays 函数中找到语音按钮创建部分，修改为：
+                // 修复：使用统一的语音提示文本生成函数
                 let voiceToggleHtml = '';
                 if (index === 0) {
                     // 检查当前语种是否支持语音提示（世界语和法语不支持）
                     if (lang !== 'eo' && lang !== 'fr') {
-                        const voiceText = voiceEnabled ? 
-                            i18n[currentWebLanguage]['voice_prompt'].replace(': 关闭', ': 开启').replace(': Off', ': On').replace(': Вык', ': Вкл').replace(': Désactivé', ': Activé').replace(': Apagado', ': Activado').replace(': مغلق', ': مفعل') :
-                            i18n[currentWebLanguage]['voice_prompt'].replace(': 开启', ': 关闭').replace(': On', ': Off').replace(': Вкл', ': Вык').replace(': Activé', ': Désactivé').replace(': Activado', ': Apagado').replace(': مفعل', ': مغلق');
                         voiceToggleHtml = `
                             <button class="lang-control-btn voice-toggle ${voiceEnabled ? 'active' : ''}" 
-                                    onclick="toggleVoice()">${voiceText}</button>
+                                    onclick="toggleVoice()">${getVoicePromptText()}</button>
                         `;
                     }
                 }
@@ -1662,7 +1708,7 @@
             content.className = 'language-dialog-content';
             
             content.innerHTML = `
-                <h3 data-i18n="select_language">选择语种</h3>
+                <h3 data-i18n="select_language">${i18n[currentWebLanguage].select_language}</h3>
                 <div class="language-options">
                     ${Object.entries(brailleMaps).map(([code, lang]) => `
                         <div class="language-option" data-lang="${code}">
@@ -1714,10 +1760,8 @@
             voiceEnabled = !voiceEnabled;
             const voiceToggle = document.querySelector('.voice-toggle');
             if (voiceToggle) {
-                const voiceText = voiceEnabled ? 
-                    i18n[currentWebLanguage]['voice_prompt'].replace(': 关闭', ': 开启').replace(': Off', ': On').replace(': Вык', ': Вкл').replace(': Désactivé', ': Activé').replace(': Apagado', ': Activado').replace(': مغلق', ': مفعل') :
-                    i18n[currentWebLanguage]['voice_prompt'].replace(': 开启', ': 关闭').replace(': On', ': Off').replace(': Вкл', ': Вык').replace(': Activé', ': Désactivé').replace(': Activado', ': Apagado').replace(': مفعل', ': مغلق');
-                voiceToggle.textContent = voiceText;
+                // 修复：使用统一的语音提示文本生成函数
+                voiceToggle.textContent = getVoicePromptText();
                 voiceToggle.classList.toggle('active', voiceEnabled);
             }
         }
@@ -1834,10 +1878,8 @@
                 const mainLang = languages[0];
                 // 只有当语种1支持语音提示时才更新按钮文本
                 if (mainLang !== 'eo' && mainLang !== 'fr') {
-                    const voiceText = voiceEnabled ? 
-                        i18n[currentWebLanguage]['voice_prompt'].replace(': 关闭', ': 开启').replace(': Off', ': On').replace(': Вык', ': Вкл').replace(': Désactivé', ': Activé').replace(': Apagado', ': Activado').replace(': مغلق', ': مفعل') :
-                        i18n[currentWebLanguage]['voice_prompt'].replace(': 开启', ': 关闭').replace(': On', ': Off').replace(': Вкл', ': Вык').replace(': Activé', ': Désactivé').replace(': Activado', ': Apagado').replace(': مفعل', ': مغلق');
-                    voiceToggle.textContent = voiceText;
+                    // 修复：使用统一的语音提示文本生成函数
+                    voiceToggle.textContent = getVoicePromptText();
                 }
             }
             
