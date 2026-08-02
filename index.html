@@ -5,105 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>13键盲文输入法</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* ===== 全局样式（保持不变） ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 95vh;
         }
-        
         header {
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
-        
-        h1 {
-            font-size: 2em;
-        }
-        
-        .header-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
+        h1 { font-size: 1.6em; }
+        .header-controls { display: flex; gap: 15px; align-items: center; }
         .lang-switch {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 8px 15px;
+            padding: 6px 14px;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            font-size: 0.9em;
         }
-        
-        .lang-switch:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
+        .lang-switch:hover { background: rgba(255,255,255,0.3); }
         .main-content {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        
         .input-section {
             flex: 0 0 auto;
-            padding: 20px;
+            padding: 16px 20px 20px 20px;
             overflow-y: auto;
             border-right: 1px solid #e9ecef;
-            min-width: 250px;
-            width: 320px;
+            min-width: 240px;
+            width: 340px;
         }
-
         .display-section {
             flex: 1;
-            padding: 20px;
+            padding: 16px 20px 20px 20px;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             min-width: 200px;
         }
-
         .keyboard-container {
             display: flex;
             flex-direction: column;
             align-items: stretch;
             justify-content: center;
-            margin: 2px 0;
+            margin: 4px 0;
             width: 100%;
         }
-
         .keyboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
             width: 100%;
             max-width: 100%;
         }
-        
         .resize-handle {
             width: 10px;
             background: #e9ecef;
@@ -111,28 +89,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
-        
-        .resize-handle:hover {
-            background: #74b9ff;
-        }
-        
-        .resize-handle::after {
-            content: "⟷";
-            color: #636e72;
-            font-size: 12px;
-        }
-        
+        .resize-handle:hover { background: #74b9ff; }
+        .resize-handle::after { content: "⟷"; color: #636e72; font-size: 12px; }
+
         .key {
             aspect-ratio: 1;
             background: linear-gradient(135deg, #74b9ff, #0984e3);
             border: none;
             border-radius: 8px;
             color: white;
-            font-size: 1em;
+            font-size: 0.8em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -142,374 +113,241 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
+            padding: 2px;
+            min-height: 60px;
         }
-        
-        .key:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .key:active {
-            transform: translateY(1px);
-        }
-        
+        .key:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .key:active { transform: translateY(1px); }
         .key-main-char {
-            font-size: 1.2em;
-            margin-bottom: 2px;
+            font-size: 1.1em;
+            margin-bottom: 1px;
             transition: font-size 0.2s;
+            line-height: 1.2;
+            text-align: center;
         }
-        
         .key-directions {
             position: absolute;
             width: 100%;
             height: 100%;
             pointer-events: none;
+            top: 0;
+            left: 0;
         }
-        
         .direction {
             position: absolute;
-            font-size: 0.6em;
+            font-size: 0.5em;
             opacity: 0.8;
             text-align: center;
             line-height: 1.2;
             transition: font-size 0.2s;
         }
-        
-        .direction-left {
-            left: 3px;
-            top: 50%;
-            transform: translateY(-50%);
+        .direction-left { left: 2px; top: 50%; transform: translateY(-50%); }
+        .direction-up { top: 2px; left: 50%; transform: translateX(-50%); }
+        .direction-right { right: 2px; top: 50%; transform: translateY(-50%); }
+        .direction-down { bottom: 2px; left: 50%; transform: translateX(-50%); }
+        .key.swipe-left .direction-left { font-size: 1.2em; opacity: 1; }
+        .key.swipe-up .direction-up { font-size: 1.2em; opacity: 1; }
+        .key.swipe-right .direction-right { font-size: 1.2em; opacity: 1; }
+        .key.swipe-down .direction-down { font-size: 1.2em; opacity: 1; }
+        .key.active .key-main-char { font-size: 1.4em; opacity: 1; }
+
+        .key-function { background: linear-gradient(135deg, #00b894, #00a085); }
+        .key-space { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+        .key-control { background: linear-gradient(135deg, #e17055, #d63031); }
+        .key-mode {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
         }
-        
-        .direction-up {
-            top: 3px;
-            left: 50%;
-            transform: translateX(-50%);
+        .key-mode .mode-label {
+            font-size: 0.55em;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-top: 2px;
         }
-        
-        .direction-right {
-            right: 3px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .direction-down {
-            bottom: 3px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .key.active .key-main-char {
-            font-size: 1.4em;
-            opacity: 1;
-        }
-        
-        /* 修复：为每个方向创建独立的激活类 */
-        .key.swipe-left .direction-left {
-            font-size: 1.4em;
-            opacity: 1;
-        }
-        
-        .key.swipe-up .direction-up {
-            font-size: 1.4em;
-            opacity: 1;
-        }
-        
-        .key.swipe-right .direction-right {
-            font-size: 1.4em;
-            opacity: 1;
-        }
-        
-        .key.swipe-down .direction-down {
-            font-size: 1.4em;
-            opacity: 1;
-        }
-        
-        .key-function {
-            background: linear-gradient(135deg, #00b894, #00a085);
-        }
-        
-        .key-space {
-            background: linear-gradient(135deg, #fdcb6e, #e17055);
-        }
-        
-        .key-control {
-            background: linear-gradient(135deg, #e17055, #d63031);
-        }
-        
+
         .display-area {
-            margin-top: 15px;
+            margin-top: 8px;
+            flex: 1;
+            overflow-y: auto;
         }
-        
         .display-box {
             background: #f8f9fa;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            min-height: 80px;
-            max-height: 200px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            min-height: 60px;
+            max-height: 180px;
             overflow-y: auto;
         }
-        
+        .language-box {
+            cursor: move;
+            transition: all 0.2s;
+        }
+        .language-box.dragging {
+            opacity: 0.5;
+            border: 2px dashed #74b9ff;
+        }
+        .language-box.drag-over {
+            border: 2px dashed #0984e3;
+        }
         .display-title {
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             color: #2d3436;
             border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        
         .display-content {
-            font-size: 1.2em;
+            font-size: 1.1em;
             line-height: 1.5;
-            min-height: 40px;
+            min-height: 30px;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-        
-        .braille-char {
-            font-family: 'Segoe UI Symbol', sans-serif;
-            font-size: 1.4em;
-        }
-        
-        .undefined {
-            color: #e74c3c;
-        }
-        
-        .language-selector {
+        .braille-char { font-family: 'Segoe UI Symbol', sans-serif; font-size: 1.3em; }
+        .undefined { color: #e74c3c; }
+
+        .language-controls {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 4px;
             flex-wrap: wrap;
         }
-        
-        .lang-btn {
-            padding: 8px 15px;
+        .lang-control-btn {
+            background: none;
             border: none;
-            border-radius: 5px;
-            background: #74b9ff;
-            color: white;
             cursor: pointer;
-            transition: background 0.3s;
+            font-size: 0.8em;
+            color: #636e72;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.2s;
         }
-        
-        .lang-btn.active {
-            background: #0984e3;
+        .lang-control-btn:hover {
+            color: #2d3436;
+            background: #e9ecef;
+        }
+        .voice-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.2s;
+            color: #636e72;
+        }
+        .voice-toggle.active {
+            color: #00b894;
             font-weight: bold;
         }
-        
+        .voice-toggle:hover {
+            color: #2d3436;
+            background: #e9ecef;
+        }
+
         .action-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            margin-top: 10px;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
-        
         .action-btn {
-            padding: 8px 15px;
+            padding: 6px 14px;
             border: none;
             border-radius: 5px;
             background: #636e72;
             color: white;
             cursor: pointer;
             transition: background 0.3s;
-        }
-        
-        .action-btn:hover {
-            background: #2d3436;
-        }
-        
-        .instructions {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 20px;
             font-size: 0.9em;
         }
-        
-        .cursor {
-            display: inline-block;
-            width: 2px;
-            height: 1.2em;
-            background: #0984e3;
-            margin-left: 2px;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        
-        .language-controls {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .lang-control-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-            color: #636e72;
-            padding: 2px 5px;
-        }
-        
-        .lang-control-btn:hover {
-            color: #2d3436;
-            background: #e9ecef;
-            border-radius: 3px;
-        }
-        
-        .language-box {
-            position: relative;
-        }
-        
-        .keyboard-guide {
-            margin: 15px auto;
+        .action-btn:hover { background: #2d3436; }
+
+        .input-info, .swipe-guide {
             text-align: center;
-            font-size: 0.9em;
+            margin: 6px 0;
+            color: #636e72;
+            font-size: 0.75em;
+        }
+        .keyboard-guide {
+            margin: 8px auto 0 auto;
+            text-align: center;
+            font-size: 0.75em;
             color: #636e72;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        
-        .keyboard-guide img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .input-info {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #636e72;
-            font-size: 0.9em;
-        }
-        
         .keyboard-schema {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            margin: 15px 0;
-            max-width: 300px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            margin: 6px 0;
+            max-width: 100%;
+            width: 100%;
         }
-        
         .schema-key {
             aspect-ratio: 1;
             background: #f1f2f6;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 0.8em;
+            font-size: 0.65em;
             text-align: center;
-            padding: 5px;
+            padding: 2px;
+            min-height: 44px;
         }
-        
-        .schema-key-name {
-            font-weight: bold;
-            margin-bottom: 2px;
+        .schema-key-name { font-weight: bold; margin-bottom: 1px; font-size: 0.8em; }
+        .schema-key-braille { font-family: 'Segoe UI Symbol', sans-serif; font-size: 1.1em; }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background: #0984e3;
+            margin-left: 2px;
+            animation: blink 1s infinite;
         }
-        
-        .schema-key-braille {
-            font-family: 'Segoe UI Symbol', sans-serif;
-            font-size: 1.2em;
-        }
-        
-        .language-box.dragging {
-            opacity: 0.5;
-            border: 2px dashed #74b9ff;
-        }
-        
-        .language-box.drag-over {
-            border: 2px dashed #0984e3;
-        }
-        
-        .language-box {
-            cursor: move;
-            transition: all 0.2s;
-        }
-        
-        .input-section-content {
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .swipe-guide {
-            text-align: center;
-            margin: 15px 0;
-            color: #636e72;
-            font-size: 0.9em;
-        }
-        
-        .voice-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-            color: #636e72;
-            padding: 2px 5px;
-        }
-        
-        .voice-toggle.active {
-            color: #00b894;
-            font-weight: bold;
-        }
-        
-        .voice-toggle:hover {
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+        .input-section h2, .display-section h2 {
+            font-size: 1.1em;
+            margin-bottom: 6px;
             color: #2d3436;
-            background: #e9ecef;
-            border-radius: 3px;
+            flex-shrink: 0;
         }
-        
-        .language-dialog {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .input-section { width: 100% !important; border-right: none; border-bottom: 1px solid #e9ecef; max-height: 50vh; }
+            .resize-handle { display: none; }
+            .key { min-height: 48px; font-size: 0.65em; }
+            .key-main-char { font-size: 0.9em; }
+            .direction { font-size: 0.45em; }
+            .keyboard { gap: 4px; }
+            .schema-key { min-height: 34px; font-size: 0.55em; }
+            header h1 { font-size: 1.2em; }
         }
-        
-        .language-dialog-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .language-options {
-            margin: 15px 0;
-        }
-        
-        .language-option {
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .language-option:hover {
-            background: #f1f2f6;
+        @media (max-width: 480px) {
+            .key { min-height: 40px; font-size: 0.55em; border-radius: 5px; }
+            .key-main-char { font-size: 0.75em; }
+            .direction { font-size: 0.4em; }
+            .keyboard { gap: 3px; }
+            .display-box { padding: 8px 10px; min-height: 40px; max-height: 120px; }
+            .display-content { font-size: 0.9em; }
+            .container { height: 98vh; border-radius: 10px; }
+            body { padding: 8px; }
         }
     </style>
 </head>
@@ -528,833 +366,843 @@
                 </select>
             </div>
         </header>
-        
+
         <div class="main-content">
             <div class="input-section" id="inputSection">
                 <h2 data-i18n="keyboard_input">键盘输入</h2>
-                
                 <div class="keyboard-container">
-                    <div class="keyboard" id="keyboard">
-                        <!-- 键盘按键将通过JavaScript动态生成 -->
-                    </div>
+                    <div class="keyboard" id="keyboard"></div>
                 </div>
-
                 <div class="input-info">
-                    <p data-i18n="input_method_intro">输入方式介绍</p>
+                    <p data-i18n="input_method_intro">点击按键输入中央字符，向四个方向滑动可输入不同字符</p>
                 </div>
-                
                 <div class="swipe-guide">
-                    <p data-i18n="swipe_demo">滑动操作演示</p>
+                    <p data-i18n="swipe_demo">滑动演示：7号键 点击⠛ 左滑⠟ 上滑⠿ 右滑⠻ 下滑⠶</p>
                 </div>
-                
-                <!-- 盲文键盘示意图 -->
                 <div class="keyboard-guide">
                     <p data-i18n="braille_keyboard_schema">盲文键盘示意图</p>
-                    <div class="keyboard-schema">
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key1">1号键</div>
-                            <div class="schema-key-braille">⠁</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key2">2号键</div>
-                            <div class="schema-key-braille">⠃</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key3">3号键</div>
-                            <div class="schema-key-braille">⠉</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key4">4号键</div>
-                            <div class="schema-key-braille">⠙</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key5">5号键</div>
-                            <div class="schema-key-braille">⠑</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key6">6号键</div>
-                            <div class="schema-key-braille">⠋</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key7">7号键</div>
-                            <div class="schema-key-braille">⠛</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key8">8号键</div>
-                            <div class="schema-key-braille">⠓</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key9">9号键</div>
-                            <div class="schema-key-braille">⠊</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key_add1">附加1键</div>
-                            <div class="schema-key-braille">⠈</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key0">0号键</div>
-                            <div class="schema-key-braille">⠚</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key_add2">附加2键</div>
-                            <div class="schema-key-braille">⠘</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key_display">显示键</div>
-                            <div class="schema-key-braille">📱</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key_space">空格键</div>
-                            <div class="schema-key-braille">⠀</div>
-                        </div>
-                        <div class="schema-key">
-                            <div class="schema-key-name" data-i18n="key_enter">回车键</div>
-                            <div class="schema-key-braille">↵</div>
-                        </div>
-                    </div>
+                    <div class="keyboard-schema" id="schemaGrid"></div>
                 </div>
             </div>
 
             <div class="resize-handle" id="resizeHandle"></div>
-            
+
             <div class="display-section" id="displaySection">
                 <h2 data-i18n="text_output">文本输出</h2>
-                
                 <div class="display-area" id="displayArea">
-                    <div class="display-box">
-                        <div class="display-title">
-                            <span data-i18n="braille_display">盲文显示</span>
-                            <div class="language-controls">
-                                <button class="lang-control-btn" onclick="copyBraille()" data-i18n="copy">复制</button>
-                                <button class="lang-control-btn" onclick="handleBackspace()" data-i18n="delete">删除</button>
-                                <button class="lang-control-btn" onclick="clearBraille()" data-i18n="clear">清空</button>
-                            </div>
-                        </div>
-                        <div class="display-content" id="brailleDisplay" contenteditable="true"></div>
-                    </div>
-                    
-                    <!-- 语言显示框将通过JavaScript动态生成 -->
+                    <!-- 盲文框和语种框由 JS 动态渲染，盲文框固定置顶 -->
                 </div>
-                
                 <div class="action-buttons">
                     <button class="action-btn" id="addLangBtn" data-i18n="add_language">添加语种</button>
                     <button class="action-btn" id="clearBtn" data-i18n="clear_input">清空输入</button>
                 </div>
             </div>
-            
         </div>
     </div>
 
     <script>
-        // 多语言支持
+        // ================================================================
+        //  多语言 (i18n)
+        // ================================================================
         const i18n = {
             'zh-CN': {
-                'app_title': '13键盲文输入法',
-                'keyboard_input': '键盘输入',
-                'text_output': '文本输出',
-                'input_method_intro': '点击按键输入中央字符，向四个方向滑动可输入不同字符',
-                'swipe_demo': '滑动操作演示：以7号键为例，点击为⠛，左滑为⠟，上滑为⠿，右滑为⠻，下滑为⠶',
-                'braille_keyboard_schema': '盲文键盘示意图',
-                'key1': '1号键',
-                'key2': '2号键',
-                'key3': '3号键',
-                'key4': '4号键',
-                'key5': '5号键',
-                'key6': '6号键',
-                'key7': '7号键',
-                'key8': '8号键',
-                'key9': '9号键',
-                'key0': '0号键',
-                'key_add1': '附加1键',
-                'key_add2': '附加2键',
-                'key_display': '显示',
-                'key_space': '空方',
-                'key_enter': '回车',
-                'braille_display': '盲文显示',
-                'copy': '复制',
-                'delete': '删除',
-                'clear': '清空',
-                'add_language': '添加语种',
-                'clear_input': '清空输入',
-                'voice_prompt': '语音提示: 开启',
-                'select_language': '选择语种',
-                'cancel': '取消',
-                'copied_done': '已复制到剪贴板',
-                'max_ten_lang': '最多只能添加10个语种！'
+                app_title:'13键盲文输入法',
+                keyboard_input:'键盘输入',
+                text_output:'文本输出',
+                input_method_intro:'点击按键输入中央字符，向四个方向滑动可输入不同字符',
+                swipe_demo:'滑动演示：7号键 点击⠛ 左滑⠟ 上滑⠿ 右滑⠻ 下滑⠶',
+                braille_keyboard_schema:'盲文键盘示意图',
+                key1:'1号键',key2:'2号键',key3:'3号键',key4:'4号键',key5:'5号键',
+                key6:'6号键',key7:'7号键',key8:'8号键',key9:'9号键',key0:'0号键',
+                key_add1:'附加1',key_add2:'附加2',
+                key_mode:'模式',key_space:'空方',key_enter:'回车',
+                braille_display:'盲文显示',
+                copy:'复制',delete:'删除',clear:'清空',
+                clear_input:'清空输入',
+                voice_prompt_on:'语音提示: 开启',
+                voice_prompt_off:'语音提示: 关闭',
+                mode_braille:'盲文',mode_text:'明文',
+                copied_done:'已复制到剪贴板',
+                add_language:'添加语种',
+                select_language:'选择语种',
+                cancel:'取消',
+                max_ten_lang:'最多只能添加10个语种！'
             },
             'en': {
-                'app_title': '13-key Braille Input Method',
-                'keyboard_input': 'Keyboard Input',
-                'text_output': 'Text Output',
-                'input_method_intro': 'Click keys to input corresponding characters, swipe in different directions for different characters',
-                'swipe_demo': 'Swipe demo: For key 7, tap for ⠛, swipe left for ⠟, up for ⠿, right for ⠻, down for ⠶',
-                'braille_keyboard_schema': 'Braille Keyboard Schema',
-                'clear_input': 'Clear Input',
-                'key1': 'Key 1',
-                'key2': 'Key 2',
-                'key3': 'Key 3',
-                'key4': 'Key 4',
-                'key5': 'Key 5',
-                'key6': 'Key 6',
-                'key7': 'Key 7',
-                'key8': 'Key 8',
-                'key9': 'Key 9',
-                'key0': 'Key 0',
-                'key_add1': 'Add Key 1',
-                'key_add2': 'Add Key 2',
-                'key_display': 'Display',
-                'key_space': 'Space',
-                'key_enter': 'Enter',
-                'braille_display': 'Braille Display',
-                'copy': 'Copy',
-                'delete': 'Delete',
-                'clear': 'Clear',
-                'add_language': 'Add Language',
-                'voice_prompt': 'Voice Prompt: On',
-                'select_language': 'Select Language',
-                'cancel': 'Cancel',
-                'copied_done': 'Copied to clipboard',
-                'max_ten_lang': 'Maximum 10 languages allowed!'
+                app_title:'13-key Braille',
+                keyboard_input:'Keyboard',
+                text_output:'Output',
+                input_method_intro:'Tap for central char, swipe for directional chars',
+                swipe_demo:'Swipe demo: key7 tap⠛ left⠟ up⠿ right⠻ down⠶',
+                braille_keyboard_schema:'Braille Keyboard',
+                key1:'Key1',key2:'Key2',key3:'Key3',key4:'Key4',key5:'Key5',
+                key6:'Key6',key7:'Key7',key8:'Key8',key9:'Key9',key0:'Key0',
+                key_add1:'Add1',key_add2:'Add2',
+                key_mode:'Mode',key_space:'Space',key_enter:'Enter',
+                braille_display:'Braille',
+                copy:'Copy',delete:'Delete',clear:'Clear',
+                clear_input:'Clear Input',
+                voice_prompt_on:'Voice: On',
+                voice_prompt_off:'Voice: Off',
+                mode_braille:'Braille',mode_text:'Text',
+                copied_done:'Copied!',
+                add_language:'Add Language',
+                select_language:'Select Language',
+                cancel:'Cancel',
+                max_ten_lang:'Max 10 languages!'
             },
             'ru': {
-                'app_title': '13-клавишный Брайлевский ввод',
-                'keyboard_input': 'Клавиатурный ввод',
-                'text_output': 'Текст вывод',
-                'input_method_intro': 'Нажмите клавиши для ввода соответствующих символов, проведите в разных направлениях для разных символов',
-                'swipe_demo': 'Демо свайпа: Для клавиши 7, тап для ⠛, свайп влево для ⠟, вверх для ⠿, вправо для ⠻, вниз для ⠶',
-                'braille_keyboard_schema': 'Схема брайлевской клавиатуры',
-                'clear_input': 'Очистить ввод',
-                'key1': 'Клавиша 1',
-                'key2': 'Клавиша 2',
-                'key3': 'Клавиша 3',
-                'key4': 'Клавиша 4',
-                'key5': 'Клавиша 5',
-                'key6': 'Клавиша 6',
-                'key7': 'Клавиша 7',
-                'key8': 'Клавиша 8',
-                'key9': 'Клавиша 9',
-                'key0': 'Клавиша 0',
-                'key_add1': 'Доп. клавиша 1',
-                'key_add2': 'Доп. клавиша 2',
-                'key_display': 'Дисплей',
-                'key_space': 'Пробел',
-                'key_enter': 'Ввод',
-                'braille_display': 'Брайлевский дисплей',
-                'copy': 'Копировать',
-                'delete': 'Удалить',
-                'clear': 'Очистить',
-                'add_language': 'Добавить язык',
-                'voice_prompt': 'Голосовая подсказка: Вкл',
-                'select_language': 'Выберите язык',
-                'cancel': 'Отмена',
-                'copied_done': 'Скопировано в буфер обмена',
-                'max_ten_lang': 'Разрешено не более 10 языков!'
+                app_title:'13-клавишный Брайль',
+                keyboard_input:'Клавиатура',
+                text_output:'Вывод',
+                input_method_intro:'Нажмите для центрального символа, проведите для других',
+                swipe_demo:'Демо: клавиша7 тап⠛ влево⠟ вверх⠿ вправо⠻ вниз⠶',
+                braille_keyboard_schema:'Схема',
+                key1:'Кл.1',key2:'Кл.2',key3:'Кл.3',key4:'Кл.4',key5:'Кл.5',
+                key6:'Кл.6',key7:'Кл.7',key8:'Кл.8',key9:'Кл.9',key0:'Кл.0',
+                key_add1:'Доп1',key_add2:'Доп2',
+                key_mode:'Режим',key_space:'Пробел',key_enter:'Ввод',
+                braille_display:'Брайль',
+                copy:'Коп.',delete:'Удл.',clear:'Оч.',
+                clear_input:'Очистить',
+                voice_prompt_on:'Голос: Вкл',
+                voice_prompt_off:'Голос: Вык',
+                mode_braille:'Брайль',mode_text:'Текст',
+                copied_done:'Скопировано!',
+                add_language:'Добавить язык',
+                select_language:'Выберите язык',
+                cancel:'Отмена',
+                max_ten_lang:'Максимум 10 языков!'
             },
             'fr': {
-                'app_title': 'Méthode de saisie Braille 13 touches',
-                'keyboard_input': 'Saisie clavier',
-                'text_output': 'Sortie texte',
-                'input_method_intro': 'Cliquez sur les touches pour saisir les caractères correspondants, glissez dans différentes directions pour différents caractères',
-                'swipe_demo': 'Démo glissement: Pour touche 7, appuyer pour ⠛, glisser gauche pour ⠟, haut pour ⠿, droite pour ⠻, bas pour ⠶',
-                'braille_keyboard_schema': 'Schéma clavier Braille',
-                'clear_input': 'Effacer saisie',
-                'key1': 'Touche 1',
-                'key2': 'Touche 2',
-                'key3': 'Touche 3',
-                'key4': 'Touche 4',
-                'key5': 'Touche 5',
-                'key6': 'Touche 6',
-                'key7': 'Touche 7',
-                'key8': 'Touche 8',
-                'key9': 'Touche 9',
-                'key0': 'Touche 0',
-                'key_add1': 'Touche add 1',
-                'key_add2': 'Touche add 2',
-                'key_display': 'Affichage',
-                'key_space': 'Espace',
-                'key_enter': 'Entrée',
-                'braille_display': 'Affichage Braille',
-                'copy': 'Copier',
-                'delete': 'Supprimer',
-                'clear': 'Effacer',
-                'add_language': 'Ajouter langue',
-                'voice_prompt': 'Invite vocale: Activé',
-                'select_language': 'Sélectionner la langue',
-                'cancel': 'Annuler',
-                'copied_done': 'Copié dans le clipboard',
-                'max_ten_lang': 'Maximum de 10 langues autorisées !'
+                app_title:'Braille 13 touches',
+                keyboard_input:'Clavier',
+                text_output:'Sortie',
+                input_method_intro:'Appuyez pour le caractère central, glissez pour les autres',
+                swipe_demo:'Démo: touche7 tap⠛ gauche⠟ haut⠿ droite⠻ bas⠶',
+                braille_keyboard_schema:'Schéma',
+                key1:'Touche1',key2:'Touche2',key3:'Touche3',key4:'Touche4',key5:'Touche5',
+                key6:'Touche6',key7:'Touche7',key8:'Touche8',key9:'Touche9',key0:'Touche0',
+                key_add1:'Add1',key_add2:'Add2',
+                key_mode:'Mode',key_space:'Espace',key_enter:'Entrée',
+                braille_display:'Braille',
+                copy:'Copier',delete:'Suppr.',clear:'Effacer',
+                clear_input:'Effacer saisie',
+                voice_prompt_on:'Voix: Activé',
+                voice_prompt_off:'Voix: Désactivé',
+                mode_braille:'Braille',mode_text:'Texte',
+                copied_done:'Copié !',
+                add_language:'Ajouter langue',
+                select_language:'Choisir langue',
+                cancel:'Annuler',
+                max_ten_lang:'Max 10 langues !'
             },
             'es': {
-                'app_title': 'Método de entrada Braille de 13 teclas',
-                'keyboard_input': 'Entrada de teclado',
-                'text_output': 'Salida de texto',
-                'input_method_intro': 'Haga clic en las teclas para ingresar caracteres correspondientes, deslice en diferentes direcciones para diferentes caracteres',
-                'swipe_demo': 'Demostración deslizamiento: Para tecla 7, toque para ⠛, deslice izquierda para ⠟, arriba para ⠿, derecha para ⠻, abajo para ⠶',
-                'braille_keyboard_schema': 'Esquema teclado Braille',
-                'clear_input': 'Limpiar entrada',
-                'key1': 'Tecla 1',
-                'key2': 'Tecla 2',
-                'key3': 'Tecla 3',
-                'key4': 'Tecla 4',
-                'key5': 'Tecla 5',
-                'key6': 'Tecla 6',
-                'key7': 'Tecla 7',
-                'key8': 'Tecla 8',
-                'key9': 'Tecla 9',
-                'key0': 'Tecla 0',
-                'key_add1': 'Tecla add 1',
-                'key_add2': 'Tecla add 2',
-                'key_display': 'Pantalla',
-                'key_space': 'Espacio',
-                'key_enter': 'Entrar',
-                'braille_display': 'Pantalla Braille',
-                'copy': 'Copiar',
-                'delete': 'Eliminar',
-                'clear': 'Limpiar',
-                'add_language': 'Añadir idioma',
-                'voice_prompt': 'Aviso de voz: Activado',
-                'select_language': 'Seleccionar idioma',
-                'cancel': 'Cancelar',
-                'copied_done': 'Copiado en el clipboard',
-                'max_ten_lang': '¡Sólo se pueden agregar hasta 10 idiomas!'
+                app_title:'Braille 13 teclas',
+                keyboard_input:'Teclado',
+                text_output:'Salida',
+                input_method_intro:'Toca para central, desliza para otros',
+                swipe_demo:'Demo: tecla7 tap⠛ izq⠟ arr⠿ der⠻ abajo⠶',
+                braille_keyboard_schema:'Esquema',
+                key1:'Tecla1',key2:'Tecla2',key3:'Tecla3',key4:'Tecla4',key5:'Tecla5',
+                key6:'Tecla6',key7:'Tecla7',key8:'Tecla8',key9:'Tecla9',key0:'Tecla0',
+                key_add1:'Add1',key_add2:'Add2',
+                key_mode:'Modo',key_space:'Espacio',key_enter:'Entrar',
+                braille_display:'Braille',
+                copy:'Copiar',delete:'Borrar',clear:'Limpiar',
+                clear_input:'Limpiar',
+                voice_prompt_on:'Voz: Activado',
+                voice_prompt_off:'Voz: Apagado',
+                mode_braille:'Braille',mode_text:'Texto',
+                copied_done:'¡Copiado!',
+                add_language:'Añadir idioma',
+                select_language:'Seleccionar idioma',
+                cancel:'Cancelar',
+                max_ten_lang:'¡Máx 10 idiomas!'
             },
             'ar': {
-                'app_title': 'طريقة إدخال برايل ذات 13 مفتاحًا',
-                'keyboard_input': 'إدخال لوحة المفاتيح',
-                'text_output': 'إخراج النص',
-                'input_method_intro': 'انقر على المفاتيح لإدخال الأحرف المقابلة، اسحب في اتجاهات مختلفة لأحرف مختلفة',
-                'swipe_demo': 'عرض السحب: للمفتاح 7، انقر لـ ⠛، اسحب لليسار لـ ⠟، لأعلى لـ ⠿، لليمين لـ ⠻، لأسفل لـ ⠶',
-                'braille_keyboard_schema': 'مخطط لوحة مفاتيح برايل',
-                'clear_input': 'مسح الإدخال',
-                'key1': 'المفتاح 1',
-                'key2': 'المفتاح 2',
-                'key3': 'المفتاح 3',
-                'key4': 'المفتاح 4',
-                'key5': 'المفتاح 5',
-                'key6': 'المفتاح 6',
-                'key7': 'المفتاح 7',
-                'key8': 'المفتاح 8',
-                'key9': 'المفتاح 9',
-                'key0': 'المفتاح 0',
-                'key_add1': 'المفتاح الإضافي 1',
-                'key_add2': 'المفتاح الإضافي 2',
-                'key_display': 'عرض',
-                'key_space': 'مسافة',
-                'key_enter': 'إدخال',
-                'braille_display': 'عرض برايل',
-                'copy': 'نسخ',
-                'delete': 'حذف',
-                'clear': 'مسح',
-                'add_language': 'إضافة لغة',
-                'voice_prompt': 'التنبيه الصوتي: مفعل',
-                'select_language': 'اختر اللغة',
-                'cancel': 'إلغاء',
-                'copied_done': 'تم النسخ إلى الحافظة',
-                'max_ten_lang': 'الحد الأقصى المسموح به هو 10 لغات!'
+                app_title:'13 مفتاح برايل',
+                keyboard_input:'لوحة المفاتيح',
+                text_output:'المخرجات',
+                input_method_intro:'اضغط للحرف المركزي، اسحب للاتجاهات',
+                swipe_demo:'عرض: مفتاح7 ضغط⠛ يسار⠟ أعلى⠿ يمين⠻ أسفل⠶',
+                braille_keyboard_schema:'مخطط',
+                key1:'م1',key2:'م2',key3:'م3',key4:'م4',key5:'م5',
+                key6:'م6',key7:'م7',key8:'م8',key9:'م9',key0:'م0',
+                key_add1:'إض1',key_add2:'إض2',
+                key_mode:'الوضع',key_space:'مسافة',key_enter:'إدخال',
+                braille_display:'برايل',
+                copy:'نسخ',delete:'حذف',clear:'مسح',
+                clear_input:'مسح الإدخال',
+                voice_prompt_on:'صوت: مفعل',
+                voice_prompt_off:'صوت: مغلق',
+                mode_braille:'برايل',mode_text:'نص',
+                copied_done:'تم النسخ!',
+                add_language:'إضافة لغة',
+                select_language:'اختر اللغة',
+                cancel:'إلغاء',
+                max_ten_lang:'الحد الأقصى 10 لغات!'
             }
         };
 
-        // 盲文到各语言的映射表
+        // ================================================================
+        //  盲文映射数据
+        //  可外置为独立 JSON，此处内嵌便于演示
+        // ================================================================
         const brailleMaps = {
-            eo: { // 世界语
+            eo: {
                 name: "Esperanto ⠑⠎⠏⠑⠗⠁⠝⠞⠕",
-                '⠁': 'a', '⠃': 'b', '⠉': 'c', '⠙': 'd', '⠑': 'e',
-                '⠋': 'f', '⠛': 'g', '⠓': 'h', '⠊': 'i', '⠚': 'j',
-                '⠅': 'k', '⠇': 'l', '⠍': 'm', '⠝': 'n', '⠕': 'o',
-                '⠏': 'p', '⠟': 'q', '⠗': 'r', '⠎': 's', '⠞': 't',
-                '⠥': 'u', '⠧': 'v', '⠭': 'x', '⠽': 'y', '⠵': 'z',
-                '⠩': 'ĉ', '⠻': 'ĝ', '⠳': 'ĥ', '⠮': 'ŝ', '⠺': 'ĵ',
-                '⠬': 'ŭ', '⠜': 'ä', '⠫': 'ö', '⠷': 'ü',
-                '⠂': ',', '⠆': ';', '⠒': ':', '⠲': '.', '⠢': '?',
-                '⠖': '!', '⠦': '"', '⠔': '*', '⠴': '"', '⠌': '/',
-                '⠤': '-', '⠄': "'", '⠀': ' ',
-                // 语音提示 - 世界语不支持语音提示
-                voicePrompts: {}
+                '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠕':'o',
+                '⠏':'p','⠟':'q','⠗':'r','⠎':'s','⠞':'t',
+                '⠥':'u','⠧':'v','⠭':'x','⠽':'y','⠵':'z',
+                '⠩':'ĉ','⠻':'ĝ','⠳':'ĥ','⠮':'ŝ','⠺':'ĵ',
+                '⠬':'ŭ','⠜':'ä','⠫':'ö','⠷':'ü',
+                '⠂':',','⠆':';','⠒':':','⠲':'.','⠢':'?',
+                '⠖':'!','⠦':'"','⠔':'*','⠴':'"','⠌':'/',
+                '⠤':'-','⠄':"'",'⠀':' ',
+                displayChars:{},
+                voicePrompts:{}
             },
-            zh: { // 汉语注音符号
-                name: "ㄏㄢˋㄩˇ（汉语注音符号） ⠓⠧⠆⠬⠄",
-                // 键盘显示字符
+            zh: {
+                name: "ㄏㄢˋㄩˇ（汉语：现行盲文→注音符号） ⠓⠧⠆⠬⠄",
                 displayChars: {
-                    // 声调
-                    '⠁': '阴平', '⠂': '阳平', '⠄': '上声', '⠆': '去声',
-                    // 韵母
-                    '⠔': 'ㄚ', '⠫': 'ㄧㄚ', '⠿': 'ㄨㄚ',
-                    '⠊': 'ㄧ', '⠥': 'ㄨ', '⠬': 'ㄩ', '⠗': 'ㄦ',
-                    '⠢': 'ㄛ/ㄜ', '⠑': 'ㄧㄝ', '⠕': 'ㄨㄛ', '⠾': 'ㄩㄝ',
-                    '⠖': 'ㄠ', '⠜': 'ㄧㄠ',
-                    '⠷': 'ㄡ', '⠳': 'ㄧㄡ',
-                    '⠪': 'ㄞ', '⠽': 'ㄨㄞ',
-                    '⠮': 'ㄟ', '⠺': 'ㄨㄟ',
-                    '⠧': 'ㄢ', '⠩': 'ㄧㄢ', '⠻': 'ㄨㄢ', '⠯': 'ㄩㄢ',
-                    '⠴': 'ㄣ', '⠣': 'ㄧㄣ', '⠒': 'ㄨㄣ', '⠸': 'ㄩㄣ', 
-                    '⠦': 'ㄤ', '⠭': 'ㄧㄤ', '⠶': 'ㄨㄤ', 
-                    '⠼': 'ㄥ', '⠡': 'ㄧㄥ', '⠲': 'ㄨㄥ', '⠹': 'ㄩㄥ',
-                    // 声母
-                    '⠃': 'ㄅ', '⠏': 'ㄆ', '⠍': 'ㄇ', '⠋': 'ㄈ',
-                    '⠙': 'ㄉ', '⠞': 'ㄊ', '⠝': 'ㄋ', '⠇': 'ㄌ',
-                    '⠛': 'ㄍ/ㄐ', '⠅': 'ㄎ/ㄑ', '⠓': 'ㄏ/ㄒ',
-                    '⠌': 'ㄓ', '⠟': 'ㄔ', '⠱': 'ㄕ', '⠚': 'ㄖ',
-                    '⠵': 'ㄗ', '⠉': 'ㄘ', '⠎': 'ㄙ',
-                    // 标点和其他
-                    '⠈': '、', '⠘': '"', '⠤': '：', '⠐': '，', '⠰': '；',
-                    '⠠': 'ABCD', '⠨': 'αβγδ','⠀': ' '
+                    '⠁':'阴平','⠂':'阳平','⠄':'上声','⠆':'去声',
+                    '⠔':'ㄚ','⠫':'ㄧㄚ','⠿':'ㄨㄚ',
+                    '⠊':'ㄧ','⠥':'ㄨ','⠬':'ㄩ','⠗':'ㄦ',
+                    '⠢':'ㄛ/ㄜ','⠑':'ㄧㄝ','⠕':'ㄨㄛ','⠾':'ㄩㄝ',
+                    '⠖':'ㄠ','⠜':'ㄧㄠ',
+                    '⠷':'ㄡ','⠳':'ㄧㄡ',
+                    '⠪':'ㄞ','⠽':'ㄨㄞ',
+                    '⠮':'ㄟ','⠺':'ㄨㄟ',
+                    '⠧':'ㄢ','⠩':'ㄧㄢ','⠻':'ㄨㄢ','⠯':'ㄩㄢ',
+                    '⠴':'ㄣ','⠣':'ㄧㄣ','⠒':'ㄨㄣ','⠸':'ㄩㄣ',
+                    '⠦':'ㄤ','⠭':'ㄧㄤ','⠶':'ㄨㄤ',
+                    '⠼':'ㄥ','⠡':'ㄧㄥ','⠲':'ㄨㄥ','⠹':'ㄩㄥ',
+                    '⠃':'ㄅ','⠏':'ㄆ','⠍':'ㄇ','⠋':'ㄈ',
+                    '⠙':'ㄉ','⠞':'ㄊ','⠝':'ㄋ','⠇':'ㄌ',
+                    '⠛':'ㄍ/ㄐ','⠅':'ㄎ/ㄑ','⠓':'ㄏ/ㄒ',
+                    '⠌':'ㄓ','⠟':'ㄔ','⠱':'ㄕ','⠚':'ㄖ',
+                    '⠵':'ㄗ','⠉':'ㄘ','⠎':'ㄙ',
+                    '⠈':'、','⠘':'"','⠤':'：','⠐':'，','⠰':'；',
+                    '⠠':'ABCD','⠨':'αβγδ','⠀':' '
                 },
-                // 实际输出字符
-                '⠁': 'ˉ', '⠂': 'ˊ', '⠄': 'ˇ', '⠆': 'ˋ',
-                // 韵母
-                '⠔': 'ㄚ', '⠫': 'ㄧㄚ', '⠿': 'ㄨㄚ',
-                '⠊': 'ㄧ', '⠥': 'ㄨ', '⠬': 'ㄩ', '⠗': 'ㄦ',
-                '⠢': 'ㄜ', '⠑': 'ㄧㄝ', '⠕': 'ㄨㄛ', '⠾': 'ㄩㄝ',
-                '⠖': 'ㄠ', '⠜': 'ㄧㄠ',
-                '⠷': 'ㄡ', '⠳': 'ㄧㄡ',
-                '⠪': 'ㄞ', '⠽': 'ㄨㄞ',
-                '⠮': 'ㄟ', '⠺': 'ㄨㄟ',
-                '⠧': 'ㄢ', '⠩': 'ㄧㄢ', '⠻': 'ㄨㄢ', '⠯': 'ㄩㄢ',
-                '⠴': 'ㄣ', '⠣': 'ㄧㄣ', '⠒': 'ㄨㄣ', '⠸': 'ㄩㄣ', 
-                '⠦': 'ㄤ', '⠭': 'ㄧㄤ', '⠶': 'ㄨㄤ', 
-                '⠼': 'ㄥ', '⠡': 'ㄧㄥ', '⠲': 'ㄨㄥ', '⠹': 'ㄩㄥ',
-                // 声母
-                '⠃': 'ㄅ', '⠏': 'ㄆ', '⠍': 'ㄇ', '⠋': 'ㄈ',
-                '⠙': 'ㄉ', '⠞': 'ㄊ', '⠝': 'ㄋ', '⠇': 'ㄌ',
-                '⠛': 'ㄍ', '⠅': 'ㄎ', '⠓': 'ㄏ',
-                '⠌': 'ㄓ', '⠟': 'ㄔ', '⠱': 'ㄕ', '⠚': 'ㄖ',
-                '⠵': 'ㄗ', '⠉': 'ㄘ', '⠎': 'ㄙ',
-                // 标点和其他
-                '⠈': '、', '⠘': '"', '⠤': '：', '⠐': '，', '⠰': '；',
-                '⠠': '', '⠨': '','⠀': ' ',
-                // 语音提示
+                // 单字符映射（用于文本输出，无组合时显示）
+                '⠁':'ˉ','⠂':'ˊ','⠄':'ˇ','⠆':'ˋ',
+                '⠔':'ㄚ','⠫':'ㄧㄚ','⠿':'ㄨㄚ',
+                '⠊':'ㄧ','⠥':'ㄨ','⠬':'ㄩ','⠗':'ㄦ',
+                '⠢':'ㄜ','⠑':'ㄧㄝ','⠕':'ㄨㄛ','⠾':'ㄩㄝ',
+                '⠖':'ㄠ','⠜':'ㄧㄠ',
+                '⠷':'ㄡ','⠳':'ㄧㄡ',
+                '⠪':'ㄞ','⠽':'ㄨㄞ',
+                '⠮':'ㄟ','⠺':'ㄨㄟ',
+                '⠧':'ㄢ','⠩':'ㄧㄢ','⠻':'ㄨㄢ','⠯':'ㄩㄢ',
+                '⠴':'ㄣ','⠣':'ㄧㄣ','⠒':'ㄨㄣ','⠸':'ㄩㄣ',
+                '⠦':'ㄤ','⠭':'ㄧㄤ','⠶':'ㄨㄤ',
+                '⠼':'ㄥ','⠡':'ㄧㄥ','⠲':'ㄨㄥ','⠹':'ㄩㄥ',
+                '⠃':'ㄅ','⠏':'ㄆ','⠍':'ㄇ','⠋':'ㄈ',
+                '⠙':'ㄉ','⠞':'ㄊ','⠝':'ㄋ','⠇':'ㄌ',
+                '⠛':'ㄍ','⠅':'ㄎ','⠓':'ㄏ',
+                '⠌':'ㄓ','⠟':'ㄔ','⠱':'ㄕ','⠚':'ㄖ',
+                '⠵':'ㄗ','⠉':'ㄘ','⠎':'ㄙ',
+                '⠈':'、','⠘':'"','⠤':'：','⠐':'，','⠰':'；',
+                '⠠':'','⠨':'','⠀':' ',
+                // 组合映射（变音规则） 整体替换为"声母+韵母"
+                comboMap: {
+                    // 韵母变音：ㄜ → ㄛ (声母为 ㄅㄆㄇㄈ)
+                    '⠃⠢': 'ㄅㄛ',
+                    '⠏⠢': 'ㄆㄛ',
+                    '⠍⠢': 'ㄇㄛ',
+                    '⠋⠢': 'ㄈㄛ',
+                    // 声母变音：ㄍㄎㄏ → ㄐㄑㄒ (韵母以ㄧ/ㄩ开头)
+                    '⠛⠊': 'ㄐㄧ',
+                    '⠛⠫': 'ㄐㄧㄚ',
+                    '⠛⠑': 'ㄐㄧㄝ',
+                    '⠛⠜': 'ㄐㄧㄠ',
+                    '⠛⠳': 'ㄐㄧㄡ',
+                    '⠛⠩': 'ㄐㄧㄢ',
+                    '⠛⠣': 'ㄐㄧㄣ',
+                    '⠛⠭': 'ㄐㄧㄤ',
+                    '⠛⠡': 'ㄐㄧㄥ',
+                    '⠛⠬': 'ㄐㄩ',
+                    '⠛⠾': 'ㄐㄩㄝ',
+                    '⠛⠯': 'ㄐㄩㄢ',
+                    '⠛⠸': 'ㄐㄩㄣ',
+                    '⠛⠹': 'ㄐㄩㄥ',
+                    '⠅⠊': 'ㄑㄧ',
+                    '⠅⠫': 'ㄑㄧㄚ',
+                    '⠅⠑': 'ㄑㄧㄝ',
+                    '⠅⠜': 'ㄑㄧㄠ',
+                    '⠅⠳': 'ㄑㄧㄡ',
+                    '⠅⠩': 'ㄑㄧㄢ',
+                    '⠅⠣': 'ㄑㄧㄣ',
+                    '⠅⠭': 'ㄑㄧㄤ',
+                    '⠅⠡': 'ㄑㄧㄥ',
+                    '⠅⠬': 'ㄑㄩ',
+                    '⠅⠾': 'ㄑㄩㄝ',
+                    '⠅⠯': 'ㄑㄩㄢ',
+                    '⠅⠸': 'ㄑㄩㄣ',
+                    '⠅⠹': 'ㄑㄩㄥ',
+                    '⠓⠊': 'ㄒㄧ',
+                    '⠓⠫': 'ㄒㄧㄚ',
+                    '⠓⠑': 'ㄒㄧㄝ',
+                    '⠓⠜': 'ㄒㄧㄠ',
+                    '⠓⠳': 'ㄒㄧㄡ',
+                    '⠓⠩': 'ㄒㄧㄢ',
+                    '⠓⠣': 'ㄒㄧㄣ',
+                    '⠓⠭': 'ㄒㄧㄤ',
+                    '⠓⠡': 'ㄒㄧㄥ',
+                    '⠓⠬': 'ㄒㄩ',
+                    '⠓⠾': 'ㄒㄩㄝ',
+                    '⠓⠯': 'ㄒㄩㄢ',
+                    '⠓⠸': 'ㄒㄩㄣ',
+                    '⠓⠹': 'ㄒㄩㄥ',
+                },
                 voicePrompts: {
-                    '⠁': '第一声，阴平调', '⠂': '第二声，阳平调', '⠄': '第三声，上声调', '⠆': '第四声，去声调',
-                    // 韵母
-                    '⠔': '阿', '⠫': '鸭', '⠿': '蛙',
-                    '⠊': '伊', '⠥': '乌', '⠬': '迂', '⠗': '儿',
-                    '⠢': '喔，屙', '⠑': '椰', '⠕': '窝', '⠾': '约',
-                    '⠖': '凹', '⠜': '妖',
-                    '⠷': '欧', '⠳': '优',
-                    '⠪': '埃', '⠽': '歪',
-                    '⠮': '欸', '⠺': '危',
-                    '⠧': '安', '⠩': '焉', '⠻': '弯', '⠯': '渊',
-                    '⠴': '恩', '⠣': '音', '⠒': '温', '⠸': '晕', 
-                    '⠦': '肮', '⠭': '央', '⠶': '汪', 
-                    '⠼': '鞥', '⠡': '英', '⠲': '翁', '⠹': '拥',
-                    // 声母
-                    '⠃': '波', '⠏': '坡', '⠍': '摸', '⠋': '佛',
-                    '⠙': '的', '⠞': '特', '⠝': '呢', '⠇': '了',
-                    '⠛': '歌，鸡', '⠅': '科，七', '⠓': '喝，西',
-                    '⠌': '汁', '⠟': '吃', '⠱': '师', '⠚': '日',
-                    '⠵': '资', '⠉': '疵', '⠎': '司',
-                    // 标点
-                    '⠈': '顿号', '⠘': '引号', '⠤': '冒号', '⠐': '逗号', '⠰': '分号',
-                    '⠠': '大写拉丁字母', '⠨': '小写希腊字母', '⠀': '空方'
+                    '⠁':'第一声，阴平调','⠂':'第二声，阳平调','⠄':'第三声，上声调','⠆':'第四声，去声调',
+                    '⠔':'阿','⠫':'鸭','⠿':'蛙',
+                    '⠊':'伊','⠥':'乌','⠬':'迂','⠗':'儿',
+                    '⠢':'喔，屙','⠑':'椰','⠕':'窝','⠾':'约',
+                    '⠖':'凹','⠜':'妖',
+                    '⠷':'欧','⠳':'优',
+                    '⠪':'埃','⠽':'歪',
+                    '⠮':'欸','⠺':'危',
+                    '⠧':'安','⠩':'焉','⠻':'弯','⠯':'渊',
+                    '⠴':'恩','⠣':'音','⠒':'温','⠸':'晕',
+                    '⠦':'肮','⠭':'央','⠶':'汪',
+                    '⠼':'鞥','⠡':'英','⠲':'翁','⠹':'拥',
+                    '⠃':'波','⠏':'坡','⠍':'摸','⠋':'佛',
+                    '⠙':'的','⠞':'特','⠝':'呢','⠇':'了',
+                    '⠛':'歌，鸡','⠅':'科，七','⠓':'喝，西',
+                    '⠌':'汁','⠟':'吃','⠱':'师','⠚':'日',
+                    '⠵':'资','⠉':'疵','⠎':'司',
+                    '⠈':'顿号','⠘':'引号','⠤':'冒号','⠐':'逗号','⠰':'分号',
+                    '⠠':'大写拉丁字母','⠨':'小写希腊字母','⠀':'空方'
                 }
             },
-            en: { // 英语
+            en: {
                 name: "English ⠑⠝⠛⠇⠊⠩",
-                '⠁': 'a', '⠃': 'b', '⠉': 'c', '⠙': 'd', '⠑': 'e',
-                '⠋': 'f', '⠛': 'g', '⠓': 'h', '⠊': 'i', '⠚': 'j',
-                '⠅': 'k', '⠇': 'l', '⠍': 'm', '⠝': 'n', '⠕': 'o',
-                '⠏': 'p', '⠟': 'q', '⠗': 'r', '⠎': 's', '⠞': 't',
-                '⠥': 'u', '⠧': 'v', '⠭': 'x', '⠽': 'y', '⠵': 'z',
-                '⠷': 'w', '⠂': ',', '⠲': '.', '⠖': '!', '⠤': '-',
-                '⠆': ';', '⠒': ':', '⠢': '?', '⠄': '\'', '⠀': ' ',
+                '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠕':'o',
+                '⠏':'p','⠟':'q','⠗':'r','⠎':'s','⠞':'t',
+                '⠥':'u','⠧':'v','⠭':'x','⠽':'y','⠵':'z',
+                '⠷':'w','⠂':',','⠲':'.','⠖':'!','⠤':'-',
+                '⠆':';','⠒':':','⠢':'?','⠄':"'",'⠀':' ',
+                displayChars:{},
                 voicePrompts: {
-                    '⠁': 'a', '⠃': 'b', '⠉': 'c', '⠙': 'd', '⠑': 'e',
-                    '⠋': 'f', '⠛': 'g', '⠓': 'h', '⠊': 'i', '⠚': 'j',
-                    '⠅': 'k', '⠇': 'l', '⠍': 'm', '⠝': 'n', '⠕': 'o',
-                    '⠏': 'p', '⠟': 'q', '⠗': 'r', '⠎': 's', '⠞': 't',
-                    '⠥': 'u', '⠧': 'v', '⠭': 'x', '⠽': 'y', '⠵': 'z',
-                    '⠷': 'w', '⠂': 'comma', '⠲': 'period', '⠖': 'exclamation',
-                    '⠄': 'apostrophe', '⠤': 'hyphen', '⠆': 'semicolon',
-                    '⠒': 'colon', '⠢': 'question mark', '⠀': 'space'
+                    '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                    '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                    '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠕':'o',
+                    '⠏':'p','⠟':'q','⠗':'r','⠎':'s','⠞':'t',
+                    '⠥':'u','⠧':'v','⠭':'x','⠽':'y','⠵':'z',
+                    '⠷':'w','⠂':'comma','⠲':'period','⠖':'exclamation',
+                    '⠄':'apostrophe','⠤':'hyphen','⠆':'semicolon',
+                    '⠒':'colon','⠢':'question mark','⠀':'space'
                 }
             },
-            fr: { // 法语
+            fr: {
                 name: "français ⠋⠗⠁⠝⠉⠁⠊⠎",
-                '⠁': 'a', '⠃': 'b', '⠉': 'c', '⠙': 'd', '⠑': 'e',
-                '⠋': 'f', '⠛': 'g', '⠓': 'h', '⠊': 'i', '⠚': 'j',
-                '⠅': 'k', '⠇': 'l', '⠍': 'm', '⠝': 'n', '⠕': 'o',
-                '⠏': 'p', '⠟': 'q', '⠗': 'r', '⠎': 's', '⠞': 't',
-                '⠥': 'u', '⠧': 'v', '⠭': 'x', '⠽': 'y', '⠵': 'z',
-                '⠡': 'â', '⠣': 'ê', '⠩': 'î', '⠹': 'ô', '⠱': 'û',
-                '⠫': 'ë', '⠻': 'ï', '⠳': 'ü', '⠪': 'œ', '⠺': 'w',
-                '⠯': 'ç', '⠿': 'é', '⠷': 'à', '⠮': 'è', '⠾': 'ù',
-                '⠢': '?', '⠖': '!', '⠦': '(', '⠔': '', '⠴': ')', '⠄': "'",
-                '⠂': ',', '⠆': ';', '⠒': ':', '⠲': ',', '⠤': '-', '⠀': ' ',
-                // 语音提示 - 法语不支持语音提示
-                voicePrompts: {}
+                '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠕':'o',
+                '⠏':'p','⠟':'q','⠗':'r','⠎':'s','⠞':'t',
+                '⠥':'u','⠧':'v','⠭':'x','⠽':'y','⠵':'z',
+                '⠡':'â','⠣':'ê','⠩':'î','⠹':'ô','⠱':'û',
+                '⠫':'ë','⠻':'ï','⠳':'ü','⠪':'œ','⠺':'w',
+                '⠯':'ç','⠿':'é','⠷':'à','⠮':'è','⠾':'ù',
+                '⠢':'?','⠖':'!','⠦':'(','⠔':'','⠴':')','⠄':"'",
+                '⠂':',','⠆':';','⠒':':','⠲':',','⠤':'-','⠀':' ',
+                displayChars:{},
+                voicePrompts:{}
             },
-            ru: { // 俄语
+            ru: {
                 name: "русский ⠗⠥⠎⠎⠅⠊⠯",
-                '⠁': 'а', '⠃': 'б', '⠉': 'ц', '⠙': 'д', '⠑': 'е',
-                '⠋': 'ф', '⠛': 'г', '⠓': 'х', '⠊': 'и', '⠚': 'ж',
-                '⠅': 'к', '⠇': 'л', '⠍': 'м', '⠝': 'н', '⠕': 'о',
-                '⠏': 'п', '⠟': 'ч', '⠗': 'р', '⠎': 'с', '⠞': 'т',
-                '⠥': 'у', '⠧': '', '⠭': 'щ', '⠽': '', '⠵': 'з',
-                '⠯': 'й', '⠿': '', '⠷': 'ъ', '⠮': 'ы', '⠾': 'ь',
-                '⠡': 'ё', '⠣': '', '⠩': '', '⠹': '', '⠱': 'ш',
-                '⠫': 'я', '⠻': '', '⠳': 'ю', '⠪': 'э', '⠺': 'в',
-                '⠂': ',', '⠆': ';', '⠒': ':', '⠲': '.',
-                '⠢': '?', '⠖': '!', '⠦': '«', '⠔': '',
-                '⠴': '»', '⠤': '-', '⠀': ' ',
+                '⠁':'а','⠃':'б','⠉':'ц','⠙':'д','⠑':'е',
+                '⠋':'ф','⠛':'г','⠓':'х','⠊':'и','⠚':'ж',
+                '⠅':'к','⠇':'л','⠍':'м','⠝':'н','⠕':'о',
+                '⠏':'п','⠟':'ч','⠗':'р','⠎':'с','⠞':'т',
+                '⠥':'у','⠧':'','⠭':'щ','⠽':'','⠵':'з',
+                '⠯':'й','⠿':'','⠷':'ъ','⠮':'ы','⠾':'ь',
+                '⠡':'ё','⠣':'','⠩':'','⠹':'','⠱':'ш',
+                '⠫':'я','⠻':'','⠳':'ю','⠪':'э','⠺':'в',
+                '⠂':',','⠆':';','⠒':':','⠲':'.',
+                '⠢':'?','⠖':'!','⠦':'«','⠔':'','⠴':'»','⠤':'-','⠀':' ',
+                displayChars:{},
                 voicePrompts: {
-                    '⠁': 'а', '⠃': 'бэ', '⠉': 'цэ', '⠙': 'дэ', '⠑': 'е',
-                    '⠋': 'эф', '⠛': 'гэ', '⠓': 'ха', '⠊': 'и', '⠚': 'жэ',
-                    '⠅': 'ка', '⠇': 'эль', '⠍': 'эм', '⠝': 'эн', '⠕': 'о',
-                    '⠏': 'пэ', '⠟': 'че', '⠗': 'эр', '⠎': 'эс', '⠞': 'тэ',
-                    '⠥': 'у', '⠭': 'ща', '⠵': 'зэ', '⠯': 'и краткое',
-                    '⠷': 'твёрдый знак', '⠮': 'ы', '⠾': 'мягкий знак',
-                    '⠡': 'ё', '⠱': 'ша', '⠫': 'я', '⠳': 'ю', '⠪': 'э', '⠺': 'вэ',
-                    '⠂': 'запятая', '⠆': 'точка с запятой',
-                    '⠒': 'двоеточие', '⠲': 'точка', '⠢': 'вопросительный знак',
-                    '⠖': 'восклицательный знак', '⠦': 'открывающая кавычка',
-                    '⠴': 'закрывающая кавычка', '⠤': 'дефис', '⠀': 'пробел'
+                    '⠁':'а','⠃':'бэ','⠉':'цэ','⠙':'дэ','⠑':'е',
+                    '⠋':'эф','⠛':'гэ','⠓':'ха','⠊':'и','⠚':'жэ',
+                    '⠅':'ка','⠇':'эль','⠍':'эм','⠝':'эн','⠕':'о',
+                    '⠏':'пэ','⠟':'че','⠗':'эр','⠎':'эс','⠞':'тэ',
+                    '⠥':'у','⠭':'ща','⠵':'зэ','⠯':'и краткое',
+                    '⠷':'твёрдый знак','⠮':'ы','⠾':'мягкий знак',
+                    '⠡':'ё','⠱':'ша','⠫':'я','⠳':'ю','⠪':'э','⠺':'вэ',
+                    '⠂':'запятая','⠆':'точка с запятой',
+                    '⠒':'двоеточие','⠲':'точка','⠢':'вопросительный знак',
+                    '⠖':'восклицательный знак','⠦':'открывающая кавычка',
+                    '⠴':'закрывающая кавычка','⠤':'дефис','⠀':'пробел'
+                }
+            },
+            ja: {
+                name: "日本語（カタカナ） ⠇⠮⠴⠐⠪",
+
+                // ---------- 键盘明文显示（用于模式切换） ----------
+                displayChars: {
+                    '⠐':'濁音','⠠':'半濁音','⠈':'拗音',
+                    '⠘':'濁拗音','⠨':'半濁拗音','⠸':'ヴ拗音'
+                },
+
+                // ---------- 单字符映射（用于文本输出，无组合时显示盲符本身） ----------
+                '⠁':'ア','⠃':'イ','⠉':'ウ','⠙':'ル','⠑':'ラ',
+                '⠋':'エ','⠛':'レ','⠓':'リ','⠊':'オ','⠚':'ロ',
+                '⠅':'ナ','⠇':'ニ','⠍':'ヌ','⠝':'ツ','⠕':'タ',
+                '⠏':'ネ','⠟':'テ','⠗':'チ','⠎':'ノ','⠞':'ト',
+                '⠥':'ハ','⠧':'ヒ','⠭':'フ','⠽':'ム','⠵':'マ',
+                '⠯':'ヘ','⠿':'メ','⠷':'ミ','⠮':'ホ','⠾':'モ',
+                '⠡':'カ','⠣':'キ','⠩':'ク','⠹':'ス','⠱':'サ',
+                '⠫':'ケ','⠻':'セ','⠳':'シ','⠪':'コ','⠺':'ソ',
+                '⠌':'ヤ','⠬':'ユ','⠜':'ヨ',
+                '⠄':'ワ','⠆':'ヰ','⠖':'ヱ','⠔':'ヲ',
+                '⠴':'ン','⠂':'ッ','⠒':'ー',
+                '⠰':'、','⠲':'。','⠢':'？',
+                // 变音符号在文本输出中显示为盲符本身
+                '⠐':'⠐','⠠':'⠠','⠈':'⠈',
+                '⠘':'⠘','⠨':'⠨','⠸':'⠸',
+                '⠀':' ',
+
+                // ---------- 组合映射（用于输出替换） ----------
+                comboMap: {
+                    // 浊音
+                    '⠐⠡':'ガ','⠐⠣':'ギ','⠐⠩':'グ','⠐⠫':'ゲ','⠐⠪':'ゴ',
+                    '⠐⠱':'ザ','⠐⠳':'ジ','⠐⠹':'ズ','⠐⠻':'ゼ','⠐⠺':'ゾ',
+                    '⠐⠕':'ダ','⠐⠗':'ヂ','⠐⠝':'ヅ','⠐⠟':'デ','⠐⠞':'ド',
+                    '⠐⠥':'バ','⠐⠧':'ビ','⠐⠭':'ブ','⠐⠯':'ベ','⠐⠮':'ボ',
+                    // 半浊音
+                    '⠠⠥':'パ','⠠⠧':'ピ','⠠⠭':'プ','⠠⠯':'ペ','⠠⠮':'ポ',
+                    // 拗音（清音）
+                    '⠈⠡':'キャ','⠈⠩':'キュ','⠈⠪':'キョ',
+                    '⠈⠱':'シャ','⠈⠹':'シュ','⠈⠺':'ショ',
+                    '⠈⠕':'チャ','⠈⠝':'チュ','⠈⠞':'チョ',
+                    '⠈⠅':'ニャ','⠈⠍':'ニュ','⠈⠎':'ニョ',
+                    '⠈⠥':'ヒャ','⠈⠭':'ヒュ','⠈⠮':'ヒョ',
+                    '⠈⠵':'ミャ','⠈⠽':'ミュ','⠈⠾':'ミョ',
+                    '⠈⠑':'リャ','⠈⠙':'リュ','⠈⠚':'リョ',
+                    // 浊拗音
+                    '⠘⠡':'ギャ','⠘⠩':'ギュ','⠘⠪':'ギョ',
+                    '⠘⠱':'ジャ','⠘⠹':'ジュ','⠘⠺':'ジョ',
+                    '⠘⠕':'ヂャ','⠘⠝':'ヂュ','⠘⠞':'ヂョ',
+                    '⠘⠥':'ビャ','⠘⠭':'ビュ','⠘⠮':'ビョ',
+                    // 半浊拗音
+                    '⠨⠥':'ピャ','⠨⠭':'ピュ','⠨⠮':'ピョ',
+                    // 特殊拗音
+                    '⠈⠳':'スィ','⠈⠗':'ティ','⠘⠳':'ズィ','⠘⠗':'ディ',
+                    '⠈⠋':'イェ','⠈⠫':'キェ','⠈⠻':'シェ','⠈⠟':'チェ',
+                    '⠈⠏':'ニェ','⠈⠯':'ヒェ','⠘⠻':'ジェ',
+                    '⠨⠝':'テュ','⠨⠬':'フュ','⠨⠜':'フョ',
+                    '⠸⠝':'デュ','⠸⠬':'ヴュ','⠸⠜':'ヴョ',
+                    '⠐⠉':'ヴ',
+                    // 外来语
+                    '⠢⠃':'ウィ','⠢⠋':'ウェ','⠢⠊':'ウォ',
+                    '⠢⠡':'クァ','⠢⠣':'クィ','⠢⠫':'クェ','⠢⠪':'クォ',
+                    '⠢⠕':'ツァ','⠢⠗':'ツィ','⠢⠝':'トゥ','⠢⠟':'ツェ','⠢⠞':'ツォ',
+                    '⠢⠥':'ファ','⠢⠧':'フィ','⠢⠯':'フェ','⠢⠮':'フォ',
+                    '⠲⠡':'グァ','⠲⠣':'グィ','⠲⠫':'グェ','⠲⠪':'グォ',
+                    '⠲⠝':'ドゥ','⠲⠥':'ヴァ','⠲⠧':'ヴィ','⠲⠯':'ヴェ','⠲⠮':'ヴォ',
+                },
+
+                // ---------- 语音提示 ----------
+                voicePrompts: {
+                    '⠁':'ア','⠃':'イ','⠉':'ウ','⠙':'ル','⠑':'ラ',
+                    '⠋':'エ','⠛':'レ','⠓':'リ','⠊':'オ','⠚':'ロ',
+                    '⠅':'ナ','⠇':'ニ','⠍':'ヌ','⠝':'ツ','⠕':'タ',
+                    '⠏':'ネ','⠟':'テ','⠗':'チ','⠎':'ノ','⠞':'ト',
+                    '⠥':'ハ','⠧':'ヒ','⠭':'フ','⠽':'ム','⠵':'マ',
+                    '⠯':'ヘ','⠿':'メ','⠷':'ミ','⠮':'ホ','⠾':'モ',
+                    '⠡':'カ','⠣':'キ','⠩':'ク','⠹':'ス','⠱':'サ',
+                    '⠫':'ケ','⠻':'セ','⠳':'シ','⠪':'コ','⠺':'ソ',
+                    '⠌':'ヤ','⠬':'ユ','⠜':'ヨ',
+                    '⠄':'ワ','⠆':'ヰ','⠖':'ヱ','⠔':'ヲ',
+                    '⠴':'ン','⠂':'促音','⠒':'長音',
+                    '⠐':'濁音','⠠':'半濁音','⠈':'拗音',
+                    '⠘':'濁拗音','⠨':'半濁拗音','⠸':'ヴ拗音',
+                    '⠰':'コンマ','⠲':'ピリオド','⠢':'疑問符','⠀':'くうほう'
+                }
+            },
+            es: {
+                name: "español ⠑⠎⠏⠁⠻⠕⠇",
+                '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠻':'ñ',
+                '⠕':'o','⠏':'p','⠟':'q','⠗':'r','⠎':'s','⠞':'t',
+                '⠥':'u','⠧':'v','⠭':'x','⠽':'y','⠵':'z','⠺':'w',
+                '⠷':'á','⠮':'é','⠌':'í','⠬':'ó','⠾':'ú','⠳':'ü',
+                '⠂':',','⠆':';','⠒':':','⠦':'"','⠔':'*',
+                '⠣':'(','⠜':')','⠀':' ',
+                displayChars:{},
+                voicePrompts: {
+                    '⠁':'a','⠃':'b','⠉':'c','⠙':'d','⠑':'e',
+                    '⠋':'f','⠛':'g','⠓':'h','⠊':'i','⠚':'j',
+                    '⠅':'k','⠇':'l','⠍':'m','⠝':'n','⠻':'ñ',
+                    '⠕':'o','⠏':'p','⠟':'q','⠗':'r','⠎':'s',
+                    '⠞':'t','⠥':'u','⠧':'v','⠭':'x','⠽':'y',
+                    '⠵':'z','⠺':'w','⠾':'u con acento','⠳':'u con diéresis',
+                    '⠷':'a con acento','⠮':'e con acento','⠌':'i con acento','⠬':'o con acento',
+                    '⠂':'coma','⠆':'punto y coma','⠒':'dos puntos','⠦':'comillas','⠔':'asterisco',
+                    '⠣':'paréntesis izquierdo','⠜':'paréntesis derecho','⠀':'espacio'
                 }
             }
         };
 
-        // 键盘布局定义
-        const keyboardLayout = [
-            { id: 'key1', label: '1', braille: '⠁', left: '⠅', up: '⠥', right: '⠡', down: '⠂' },
-            { id: 'key2', label: '2', braille: '⠃', left: '⠇', up: '⠧', right: '⠣', down: '⠆' },
-            { id: 'key3', label: '3', braille: '⠉', left: '⠍', up: '⠭', right: '⠩', down: '⠒' },
-            { id: 'key4', label: '4', braille: '⠙', left: '⠝', up: '⠽', right: '⠹', down: '⠲' },
-            { id: 'key5', label: '5', braille: '⠑', left: '⠕', up: '⠵', right: '⠱', down: '⠢' },
-            { id: 'key6', label: '6', braille: '⠋', left: '⠏', up: '⠯', right: '⠫', down: '⠖' },
-            { id: 'key7', label: '7', braille: '⠛', left: '⠟', up: '⠿', right: '⠻', down: '⠶' },
-            { id: 'key8', label: '8', braille: '⠓', left: '⠗', up: '⠷', right: '⠳', down: '⠦' },
-            { id: 'key9', label: '9', braille: '⠊', left: '⠎', up: '⠮', right: '⠪', down: '⠔' },
-            { id: 'key_add1', label: '附加1', braille: '⠈', left: '⠌', up: '⠬', right: '⠨', down: '⠐' },
-            { id: 'key0', label: '0', braille: '⠚', left: '⠞', up: '⠾', right: '⠺', down: '⠴' },
-            { id: 'key_add2', label: '附加2', braille: '⠘', left: '⠜', up: '⠼', right: '⠸', down: '⠰' }
-        ];
-        const spaceKeyLayout = {id: 'key_space', label: '空方', braille: '⠀', left: '⠄', up: '⠤', right: '⠠', down: '⠀'};
+        // 默认语种顺序 (盲文框固定置顶，语种框按此顺序排列)
+        const DEFAULT_LANGS = ['eo','zh','en','fr','ru','ja','es'];
 
-        // 状态管理
-        let currentBraille = '';
-        let languages = [];
-        let cursorPosition = 0;
-        let isReordering = false;
+        // ================================================================
+        //  键盘布局 (5×3)
+        // ================================================================
+        const keyboardLayout = [
+            { id:'key1', type:'data', label:'1', braille:'⠁', left:'⠅', up:'⠥', right:'⠡', down:'⠂' },
+            { id:'key2', type:'data', label:'2', braille:'⠃', left:'⠇', up:'⠧', right:'⠣', down:'⠆' },
+            { id:'key3', type:'data', label:'3', braille:'⠉', left:'⠍', up:'⠭', right:'⠩', down:'⠒' },
+            { id:'key_add2', type:'data', label:'附加2', braille:'⠘', left:'⠜', up:'⠼', right:'⠸', down:'⠰' },
+            { id:'key_add1', type:'data', label:'附加1', braille:'⠈', left:'⠌', up:'⠬', right:'⠨', down:'⠐' },
+            { id:'key_mode', type:'mode' },
+            { id:'key4', type:'data', label:'4', braille:'⠙', left:'⠝', up:'⠽', right:'⠹', down:'⠲' },
+            { id:'key7', type:'data', label:'7', braille:'⠛', left:'⠟', up:'⠿', right:'⠻', down:'⠶' },
+            { id:'key6', type:'data', label:'6', braille:'⠋', left:'⠏', up:'⠯', right:'⠫', down:'⠖' },
+            { id:'key_enter', type:'control' },
+            { id:'key5', type:'data', label:'5', braille:'⠑', left:'⠕', up:'⠵', right:'⠱', down:'⠢' },
+            { id:'key0', type:'data', label:'0', braille:'⠚', left:'⠞', up:'⠾', right:'⠺', down:'⠴' },
+            { id:'key_space', type:'space' },
+            { id:'key8', type:'data', label:'8', braille:'⠓', left:'⠗', up:'⠷', right:'⠳', down:'⠦' },
+            { id:'key9', type:'data', label:'9', braille:'⠊', left:'⠎', up:'⠮', right:'⠪', down:'⠔' }
+        ];
+
+        // ================================================================
+        //  状态
+        // ================================================================
+        let languages = [...DEFAULT_LANGS];
+        let displayMode = 'braille';
         let voiceEnabled = true;
+        let cursorPosition = 0;
         let isResizing = false;
         let dragSrcEl = null;
         let currentWebLanguage = 'zh-CN';
 
-        // DOM元素
+        // DOM 引用
         const keyboardEl = document.getElementById('keyboard');
-        const brailleDisplayEl = document.getElementById('brailleDisplay');
         const displayAreaEl = document.getElementById('displayArea');
         const langSwitchEl = document.getElementById('langSwitch');
         const resizeHandleEl = document.getElementById('resizeHandle');
         const inputSectionEl = document.getElementById('inputSection');
+        const schemaGridEl = document.getElementById('schemaGrid');
+        const addLangBtn = document.getElementById('addLangBtn');
+        const clearBtn = document.getElementById('clearBtn');
 
-        // 新增：统一的语音提示文本生成函数
-        function getVoicePromptText() {
-            const baseText = i18n[currentWebLanguage]['voice_prompt'];
-            if (voiceEnabled) {
-                return baseText
-                    .replace(': 关闭', ': 开启')
-                    .replace(': Off', ': On')
-                    .replace(': Вык', ': Вкл')
-                    .replace(': Désactivé', ': Activé')
-                    .replace(': Apagado', ': Activado')
-                    .replace(': مغلق', ': مفعل');
-            } else {
-                return baseText
-                    .replace(': 开启', ': 关闭')
-                    .replace(': On', ': Off')
-                    .replace(': Вкл', ': Вык')
-                    .replace(': Activé', ': Désactivé')
-                    .replace(': Activado', ': Apagado')
-                    .replace(': مفعل', ': مغلق');
-            }
+        // ================================================================
+        //  辅助函数
+        // ================================================================
+        function getMainLang() {
+            return languages.length > 0 ? languages[0] : null;
         }
 
-        // 初始化键盘
-        function initKeyboard() {
-            keyboardEl.innerHTML = '';
-            
-            keyboardLayout.forEach(key => {
-                const keyEl = createKeyElement(key);
-                keyboardEl.appendChild(keyEl);
-            });
-            
-            const displayKey = document.createElement('button');
-            displayKey.className = 'key key-function';
-            displayKey.id = 'key_display';
-            displayKey.innerHTML = `
-                <div class="key-main-char">${i18n[currentWebLanguage].key_display}</div>
-            `;
-            
-            displayKey.addEventListener('mousedown', () => {
-                updateDisplayBoard(currentBraille);
-            });
-            displayKey.addEventListener('mouseup', resetDisplayBoard);
-            displayKey.addEventListener('mouseleave', resetDisplayBoard);
-            displayKey.addEventListener('touchstart', () => {
-                updateDisplayBoard(currentBraille);
-            });
-            displayKey.addEventListener('touchend', resetDisplayBoard);
-            
-            keyboardEl.appendChild(displayKey);
-            
-            const spaceKey = createKeyElement(spaceKeyLayout);
-            keyboardEl.appendChild(spaceKey);
-            
-            const controlKey = document.createElement('button');
-            controlKey.className = 'key key-control';
-            controlKey.id = 'key_control';
-            controlKey.innerHTML = `
-                <div class="key-main-char">${i18n[currentWebLanguage].key_enter}</div>
-                <div class="key-directions">
-                    <div class="direction direction-left">←</div>
-                    <div class="direction direction-up">↑</div>
-                    <div class="direction direction-right">→</div>
-                    <div class="direction direction-down">↓</div>
-                </div>
-            `;
-            controlKey.addEventListener('click', handleEnter);
-            controlKey.addEventListener('touchstart', (e) => handleControlTouchStart(e, controlKey));
-            controlKey.addEventListener('mousedown', (e) => handleControlMouseDown(e, controlKey));
-            keyboardEl.appendChild(controlKey);
-        }
-
-        // 创建按键元素
-        function createKeyElement(key) {
-            const keyEl = document.createElement('button');
-            keyEl.className = 'key';
-            keyEl.id = key.id;
-            
-            if (languages.length === 0) {
-                keyEl.innerHTML = `
-                    <div class="key-main-char">${key.braille === '⠀' ? i18n[currentWebLanguage].key_space : key.braille}</div>
-                    <div class="key-directions">
-                        <div class="direction direction-left">${key.left}</div>
-                        <div class="direction direction-up">${key.up}</div>
-                        <div class="direction direction-right">${key.right}</div>
-                        <div class="direction direction-down">${key.down}</div>
-                    </div>
-                `;
-            } else {
-                const mainLang = languages[0];
-                const mainChar = getDisplayChar(key.braille, mainLang);
-                const leftChar = getDisplayChar(key.left, mainLang);
-                const upChar = getDisplayChar(key.up, mainLang);
-                const rightChar = getDisplayChar(key.right, mainLang);
-                const downChar = getDisplayChar(key.down, mainLang);
-                
-                keyEl.innerHTML = `
-                    <div class="key-main-char">${mainChar === ' ' ? i18n[currentWebLanguage].key_space : mainChar}</div>
-                    <div class="key-directions">
-                        <div class="direction direction-left">${leftChar}</div>
-                        <div class="direction direction-up">${upChar}</div>
-                        <div class="direction direction-right">${rightChar}</div>
-                        <div class="direction direction-down">${downChar}</div>
-                    </div>
-                `;
-            }
-            
-            keyEl.addEventListener('click', () => handleKeyPress(key.braille, key.label, 'click'));
-            keyEl.addEventListener('touchstart', (e) => handleTouchStart(e, keyEl, key));
-            keyEl.addEventListener('mousedown', (e) => handleMouseDown(e, keyEl, key));
-            
-            return keyEl;
-        }
-
-        // 获取显示字符
+        // 获取键盘显示字符（明文模式下使用 displayChars，否则使用盲符本身）
         function getDisplayChar(brailleChar, lang) {
             if (!brailleChar) return '';
-            
-            if (lang === 'zh' && brailleMaps.zh.displayChars) {
-                return brailleMaps.zh.displayChars[brailleChar] || '';
+            // 盲文模式：直接返回盲符本身
+            if (displayMode === 'braille') {
+                return brailleChar;
             }
-            
-            const char = brailleMaps[lang][brailleChar];
-            return char === undefined || char === '' ? brailleChar : char;
+            const map = brailleMaps[lang];
+            if (!map) return brailleChar;
+            // 明文模式：优先使用 displayChars
+            if (map.displayChars && map.displayChars[brailleChar] !== undefined) {
+                return map.displayChars[brailleChar];
+            }
+            // 否则使用单字符映射，若不存在则返回盲符本身
+            const ch = map[brailleChar];
+            return (ch === undefined || ch === '') ? brailleChar : ch;
         }
 
-        // 触摸开始事件处理
-        function handleTouchStart(e, keyEl, key = null) {
+        function getMainChar(brailleChar) {
+            const lang = getMainLang();
+            if (!lang) return brailleChar;
+            return getDisplayChar(brailleChar, lang);
+        }
+
+        function getActiveVoiceLang() {
+            for (let lang of languages) {
+                const map = brailleMaps[lang];
+                if (map && map.voicePrompts && Object.keys(map.voicePrompts).length > 0) {
+                    return lang;
+                }
+            }
+            return null;
+        }
+
+        function getVoicePrompt(brailleChar, lang) {
+            const map = brailleMaps[lang];
+            if (!map || !map.voicePrompts) return null;
+            return map.voicePrompts[brailleChar] || null;
+        }
+
+        // ================================================================
+        //  通用的组合处理函数（用于文本输出）
+        //  对于有 comboMap 的语言，优先匹配两字符组合，否则返回单字符（不区分键盘显示）
+        // ================================================================
+        function processCombo(text, index, lang) {
+            const map = brailleMaps[lang];
+            if (!map) return { char: text[index], skip: false };
+            // 尝试组合
+            if (index < text.length - 1 && map.comboMap) {
+                const two = text.substring(index, index + 2);
+                const replacement = map.comboMap[two];
+                if (replacement) {
+                    return { char: replacement, skip: true };
+                }
+            }
+            // 单字符：直接使用 map[brailleChar]，若无则显示盲符本身
+            const brailleChar = text[index];
+            const single = map[brailleChar];
+            if (single === undefined || single === '') {
+                return { char: brailleChar, skip: false };
+            }
+            return { char: single, skip: false };
+        }
+
+        // ================================================================
+        //  渲染：键盘
+        // ================================================================
+        function renderKeyboard() {
+            const mainLang = getMainLang();
+            keyboardEl.innerHTML = '';
+            keyboardLayout.forEach(key => {
+                const el = document.createElement('button');
+                el.className = 'key';
+                el.id = key.id;
+
+                if (key.type === 'data') {
+                    const main = getMainChar(key.braille);
+                    const left = getMainChar(key.left);
+                    const up = getMainChar(key.up);
+                    const right = getMainChar(key.right);
+                    const down = getMainChar(key.down);
+                    const isVerticalLang = (mainLang === 'zh' || mainLang === 'ja') && displayMode === 'text';
+                    const leftStyle = isVerticalLang ? 'writing-mode: vertical-rl; text-orientation: mixed;' : '';
+                    const rightStyle = isVerticalLang ? 'writing-mode: vertical-rl; text-orientation: mixed;' : '';
+                    el.innerHTML = `
+                        <div class="key-main-char">${main === ' ' ? '␣' : main}</div>
+                        <div class="key-directions">
+                            <div class="direction direction-left" style="${leftStyle}">${left === ' ' ? '␣' : left}</div>
+                            <div class="direction direction-up">${up === ' ' ? '␣' : up}</div>
+                            <div class="direction direction-right" style="${rightStyle}">${right === ' ' ? '␣' : right}</div>
+                            <div class="direction direction-down">${down === ' ' ? '␣' : down}</div>
+                        </div>
+                    `;
+                    el.addEventListener('click', () => handleKeyPress(key.braille, key.label, 'click'));
+                    el.addEventListener('touchstart', (e) => handleTouchStart(e, el, key));
+                    el.addEventListener('mousedown', (e) => handleMouseDown(e, el, key));
+                } else if (key.type === 'mode') {
+                    const modeLabel = displayMode === 'braille' ?
+                        i18n[currentWebLanguage].mode_braille :
+                        i18n[currentWebLanguage].mode_text;
+                    const icon = displayMode === 'braille' ? '⠿' : '📄';
+                    el.className += ' key-mode';
+                    el.innerHTML = `
+                        <div class="key-main-char">${icon}</div>
+                        <div style="font-size:0.55em;line-height:1.2;text-align:center;margin-top:1px;">${modeLabel}</div>
+                        <div class="mode-label">${i18n[currentWebLanguage].key_mode}</div>
+                    `;
+                    el.addEventListener('click', toggleMode);
+                } else if (key.type === 'space') {
+                    el.className += ' key-space';
+                    const left = getMainChar('⠄');
+                    const up = getMainChar('⠤');
+                    const right = getMainChar('⠠');
+                    const isVerticalLang = (mainLang === 'zh' || mainLang === 'ja') && displayMode === 'text';
+                    const leftStyle = isVerticalLang ? 'writing-mode: vertical-rl; text-orientation: mixed;' : '';
+                    const rightStyle = isVerticalLang ? 'writing-mode: vertical-rl; text-orientation: mixed;' : '';
+                    el.innerHTML = `
+                        <div class="key-main-char">␣</div>
+                        <div class="key-directions">
+                            <div class="direction direction-left" style="${leftStyle}">${left === ' ' ? '␣' : left}</div>
+                            <div class="direction direction-up">${up === ' ' ? '␣' : up}</div>
+                            <div class="direction direction-right" style="${rightStyle}">${right === ' ' ? '␣' : right}</div>
+                            <div class="direction direction-down">␣</div>
+                        </div>
+                    `;
+                    el.addEventListener('click', () => handleKeyPress('⠀', '空方', 'click'));
+                    el.addEventListener('touchstart', (e) => handleTouchStart(e, el, { braille:'⠀', left:'⠄', up:'⠤', right:'⠠', down:'⠀' }));
+                    el.addEventListener('mousedown', (e) => handleMouseDown(e, el, { braille:'⠀', left:'⠄', up:'⠤', right:'⠠', down:'⠀' }));
+                } else if (key.type === 'control') {
+                    el.className += ' key-control';
+                    el.innerHTML = `
+                        <div class="key-main-char">↵</div>
+                        <div class="key-directions">
+                            <div class="direction direction-left">←</div>
+                            <div class="direction direction-up">↑</div>
+                            <div class="direction direction-right">→</div>
+                            <div class="direction direction-down">↓</div>
+                        </div>
+                    `;
+                    el.addEventListener('click', handleEnter);
+                    el.addEventListener('touchstart', (e) => handleControlTouchStart(e, el));
+                    el.addEventListener('mousedown', (e) => handleControlMouseDown(e, el));
+                }
+                keyboardEl.appendChild(el);
+            });
+        }
+
+        // 示意图
+        function renderSchema() {
+            schemaGridEl.innerHTML = '';
+            const lang = currentWebLanguage;
+            const schemaKeys = [
+                { key: 'key1' }, { key: 'key2' }, { key: 'key3' }, { key: 'key_add2' }, { key: 'key_add1' },
+                { key: 'key_mode' }, { key: 'key4' }, { key: 'key7' }, { key: 'key6' }, { key: 'key_enter' },
+                { key: 'key5' }, { key: 'key0' }, { key: 'key_space' }, { key: 'key8' }, { key: 'key9' }
+            ];
+            const nameMap = {
+                'key1': 'key1', 'key2': 'key2', 'key3': 'key3', 'key4': 'key4', 'key5': 'key5',
+                'key6': 'key6', 'key7': 'key7', 'key8': 'key8', 'key9': 'key9', 'key0': 'key0',
+                'key_add1': 'key_add1', 'key_add2': 'key_add2',
+                'key_mode': 'key_mode', 'key_space': 'key_space', 'key_enter': 'key_enter'
+            };
+            const brailleSymbols = [
+                '⠁','⠃','⠉','⠘','⠈',
+                '📄','⠙','⠛','⠋','↵',
+                '⠑','⠚','␣','⠓','⠊'
+            ];
+            schemaKeys.forEach((item, idx) => {
+                const i18nKey = nameMap[item.key] || item.key;
+                const displayName = i18n[lang][i18nKey] || item.key;
+                const d = document.createElement('div');
+                d.className = 'schema-key';
+                d.innerHTML = `<div class="schema-key-name">${displayName}</div><div class="schema-key-braille">${brailleSymbols[idx]}</div>`;
+                schemaGridEl.appendChild(d);
+            });
+        }
+
+        // ================================================================
+        //  模式切换
+        // ================================================================
+        function toggleMode() {
+            displayMode = displayMode === 'braille' ? 'text' : 'braille';
+            renderKeyboard();
+        }
+
+        // ================================================================
+        //  交互事件 (触摸/鼠标滑动) —— 保持不变
+        // ================================================================
+        function handleTouchStart(e, keyEl, key) {
+            if (!key) return;
             e.preventDefault();
             const touch = e.touches[0];
-            const startX = touch.clientX;
-            const startY = touch.clientY;
-            
-            function handleTouchMove(moveEvent) {
-                const touch = moveEvent.touches[0];
-                const deltaX = touch.clientX - startX;
-                const deltaY = touch.clientY - startY;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                
-                if (distance > 10) {
-                    let direction = '';
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        direction = deltaX > 0 ? 'right' : 'left';
-                    } else {
-                        direction = deltaY > 0 ? 'down' : 'up';
-                    }
-                    // 滑动处理（含空方共13键）
-                    handleSwipe(key, direction, keyEl);
-                    
-                    document.removeEventListener('touchmove', handleTouchMove);
-                    document.removeEventListener('touchend', handleTouchEnd);
+            const startX = touch.clientX, startY = touch.clientY;
+            function onMove(mv) {
+                const t = mv.touches[0];
+                const dx = t.clientX - startX, dy = t.clientY - startY;
+                if (Math.sqrt(dx*dx+dy*dy) > 10) {
+                    let dir = '';
+                    if (Math.abs(dx) > Math.abs(dy)) dir = dx>0 ? 'right' : 'left';
+                    else dir = dy>0 ? 'down' : 'up';
+                    handleSwipe(key, dir, keyEl);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
                 }
             }
-            
-            function handleTouchEnd() {
-                document.removeEventListener('touchmove', handleTouchMove);
-                document.removeEventListener('touchend', handleTouchEnd);
+            function onEnd() {
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onEnd);
             }
-            
-            document.addEventListener('touchmove', handleTouchMove);
-            document.addEventListener('touchend', handleTouchEnd);
+            document.addEventListener('touchmove', onMove);
+            document.addEventListener('touchend', onEnd);
         }
 
-        // 鼠标按下事件处理
-        function handleMouseDown(e, keyEl, key = null) {
-            const startX = e.clientX;
-            const startY = e.clientY;
-            
-            function handleMouseMove(moveEvent) {
-                const deltaX = moveEvent.clientX - startX;
-                const deltaY = moveEvent.clientY - startY;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                
-                if (distance > 10) {
-                    let direction = '';
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        direction = deltaX > 0 ? 'right' : 'left';
-                    } else {
-                        direction = deltaY > 0 ? 'down' : 'up';
-                    }
-                    
-                    if (key) {
-                        handleSwipe(key, direction, keyEl);
-                    } else {
-                        handleSwipe(spaceKeyLayout, direction, keyEl);
-                    }
-                    
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
+        function handleMouseDown(e, keyEl, key) {
+            if (!key) return;
+            const startX = e.clientX, startY = e.clientY;
+            function onMove(mv) {
+                const dx = mv.clientX - startX, dy = mv.clientY - startY;
+                if (Math.sqrt(dx*dx+dy*dy) > 10) {
+                    let dir = '';
+                    if (Math.abs(dx) > Math.abs(dy)) dir = dx>0 ? 'right' : 'left';
+                    else dir = dy>0 ? 'down' : 'up';
+                    handleSwipe(key, dir, keyEl);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
                 }
             }
-            
-            function handleMouseUp() {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
             }
-            
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
         }
 
-        // 控制键触摸开始事件处理
+        function handleSwipe(key, direction, keyEl) {
+            let brailleChar = '', dirClass = '';
+            switch(direction) {
+                case 'left': brailleChar=key.left; dirClass='swipe-left'; break;
+                case 'up': brailleChar=key.up; dirClass='swipe-up'; break;
+                case 'right': brailleChar=key.right; dirClass='swipe-right'; break;
+                case 'down': brailleChar=key.down; dirClass='swipe-down'; break;
+            }
+            if (brailleChar) {
+                keyEl.classList.add(dirClass);
+                handleKeyPress(brailleChar, key.label || '', 'swipe');
+                setTimeout(() => keyEl.classList.remove(dirClass), 300);
+            }
+        }
+
         function handleControlTouchStart(e, controlKey) {
             e.preventDefault();
             const touch = e.touches[0];
-            const startX = touch.clientX;
-            const startY = touch.clientY;
-            
-            function handleTouchMove(moveEvent) {
-                const touch = moveEvent.touches[0];
-                const deltaX = touch.clientX - startX;
-                const deltaY = touch.clientY - startY;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                
-                if (distance > 10) {
-                    let direction = '';
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        direction = deltaX > 0 ? 'right' : 'left';
-                    } else {
-                        direction = deltaY > 0 ? 'down' : 'up';
-                    }
-                    
-                    handleControlSwipe(direction);
-                    
-                    document.removeEventListener('touchmove', handleTouchMove);
-                    document.removeEventListener('touchend', handleTouchEnd);
+            const startX = touch.clientX, startY = touch.clientY;
+            function onMove(mv) {
+                const t = mv.touches[0];
+                const dx = t.clientX - startX, dy = t.clientY - startY;
+                if (Math.sqrt(dx*dx+dy*dy) > 10) {
+                    let dir = '';
+                    if (Math.abs(dx) > Math.abs(dy)) dir = dx>0 ? 'right' : 'left';
+                    else dir = dy>0 ? 'down' : 'up';
+                    handleControlSwipe(dir);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
                 }
             }
-            
-            function handleTouchEnd() {
-                document.removeEventListener('touchmove', handleTouchMove);
-                document.removeEventListener('touchend', handleTouchEnd);
+            function onEnd() {
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onEnd);
             }
-            
-            document.addEventListener('touchmove', handleTouchMove);
-            document.addEventListener('touchend', handleTouchEnd);
+            document.addEventListener('touchmove', onMove);
+            document.addEventListener('touchend', onEnd);
         }
 
-        // 控制键鼠标按下事件处理
         function handleControlMouseDown(e, controlKey) {
-            const startX = e.clientX;
-            const startY = e.clientY;
-            
-            function handleMouseMove(moveEvent) {
-                const deltaX = moveEvent.clientX - startX;
-                const deltaY = moveEvent.clientY - startY;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                
-                if (distance > 10) {
-                    let direction = '';
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        direction = deltaX > 0 ? 'right' : 'left';
-                    } else {
-                        direction = deltaY > 0 ? 'down' : 'up';
-                    }
-                    
-                    handleControlSwipe(direction);
-                    
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
+            const startX = e.clientX, startY = e.clientY;
+            function onMove(mv) {
+                const dx = mv.clientX - startX, dy = mv.clientY - startY;
+                if (Math.sqrt(dx*dx+dy*dy) > 10) {
+                    let dir = '';
+                    if (Math.abs(dx) > Math.abs(dy)) dir = dx>0 ? 'right' : 'left';
+                    else dir = dy>0 ? 'down' : 'up';
+                    handleControlSwipe(dir);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
                 }
             }
-            
-            function handleMouseUp() {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
             }
-            
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
         }
 
-        // 处理滑动输入
-        function handleSwipe(key, direction, keyEl) {
-            let brailleChar = '';
-            let directionClass = '';
-            
-            switch (direction) {
-                case 'left': 
-                    brailleChar = key.left; 
-                    directionClass = 'swipe-left';
-                    break;
-                case 'up': 
-                    brailleChar = key.up; 
-                    directionClass = 'swipe-up';
-                    break;
-                case 'right': 
-                    brailleChar = key.right; 
-                    directionClass = 'swipe-right';
-                    break;
-                case 'down': 
-                    brailleChar = key.down; 
-                    directionClass = 'swipe-down';
-                    break;
-            }
-            
-            if (brailleChar) {
-                // 修复：只添加对应方向的类
-                keyEl.classList.add(directionClass);
-                handleKeyPress(brailleChar, key.label, direction);
-                setTimeout(() => {
-                    keyEl.classList.remove(directionClass);
-                }, 300);
-            }
-        }
-
-        // 处理控制键滑动
         function handleControlSwipe(direction) {
-            switch (direction) {
+            switch(direction) {
                 case 'left': moveCursor(-1); break;
                 case 'up': moveCursorToLine(-1); break;
                 case 'right': moveCursor(1); break;
@@ -1362,293 +1210,259 @@
             }
         }
 
-        // 处理按键输入
-        function handleKeyPress(brailleChar, keyLabel, action) {
-            // 修复：点击时放大中央字符
+        // ================================================================
+        //  核心输入
+        // ================================================================
+        function handleKeyPress(brailleChar, label, action) {
             if (action === 'click') {
-                const keyEl = document.getElementById(keyLabel === '空方' ? 'key_space' : `key${keyLabel}`);
-                if (keyEl) {
-                    keyEl.classList.add('active');
-                    setTimeout(() => {
-                        keyEl.classList.remove('active');
-                    }, 300);
+                const keyId = label === '空方' ? 'key_space' :
+                              label === '回车' ? 'key_enter' :
+                              label === '模式' ? 'key_mode' :
+                              `key${label}`;
+                const el = document.getElementById(keyId);
+                if (el) { el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 300); }
+            }
+
+            // 语音提示：使用原盲符对应的语音，不变音
+            if (voiceEnabled) {
+                const voiceLang = getActiveVoiceLang();
+                if (voiceLang) {
+                    const prompt = getVoicePrompt(brailleChar, voiceLang);
+                    if (prompt) speakText(prompt, voiceLang);
                 }
             }
-            
-            updateDisplayBoard(brailleChar);
-            
-            // 播放语音提示 - 世界语和法语不支持语音提示
-            if (voiceEnabled && languages.length > 0) {
-                const mainLang = languages[0];
-                if (mainLang !== 'eo' && mainLang !== 'fr' && 
-                    brailleMaps[mainLang].voicePrompts && 
-                    brailleMaps[mainLang].voicePrompts[brailleChar]) {
-                    speakText(brailleMaps[mainLang].voicePrompts[brailleChar], mainLang);
-                }
-            }
-            
+
             insertBrailleAtCursor(brailleChar);
             updateAllDisplays();
         }
 
-        // 更新显示板
-        function updateDisplayBoard(brailleChar) {
-            const displayKey = document.getElementById('key_display');
-            if (displayKey) {
-                if (languages.length === 0) {
-                    displayKey.innerHTML = `
-                        <div class="key-main-char">${brailleChar}</div>
-                    `;
-                } else {
-                    const mainLang = languages[0];
-                    const char = getDisplayChar(brailleChar, mainLang);
-                    
-                    displayKey.innerHTML = `
-                        <div class="key-main-char">${brailleChar}</div>
-                        <div style="font-size: 0.7em; margin-top: 2px;">${char}</div>
-                    `;
-                }
-            }
-        }
-
-        // 重置显示板
-        function resetDisplayBoard() {
-            const displayKey = document.getElementById('key_display');
-            if (displayKey) {
-                displayKey.innerHTML = `<div class="key-main-char">${i18n[currentWebLanguage].key_display}</div>`;
-            }
-        }
-
-        // 在光标位置插入盲文
         function insertBrailleAtCursor(brailleChar) {
-            const text = brailleDisplayEl.textContent;
-            const beforeCursor = text.slice(0, cursorPosition);
-            const afterCursor = text.slice(cursorPosition);
-            
-            brailleDisplayEl.textContent = beforeCursor + brailleChar + afterCursor;
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            const text = display.textContent || '';
+            const before = text.slice(0, cursorPosition);
+            const after = text.slice(cursorPosition);
+            display.textContent = before + brailleChar + after;
             cursorPosition += brailleChar.length;
-            
             updateCursorPosition();
         }
 
-        // 处理回车
         function handleEnter() {
             insertBrailleAtCursor('\n');
             updateAllDisplays();
         }
 
-        // 移动光标
-        function moveCursor(direction) {
-            const text = brailleDisplayEl.textContent;
-            const newPosition = cursorPosition + direction;
-            
-            if (newPosition >= 0 && newPosition <= text.length) {
-                cursorPosition = newPosition;
+        function moveCursor(delta) {
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            const text = display.textContent || '';
+            const newPos = cursorPosition + delta;
+            if (newPos >= 0 && newPos <= text.length) {
+                cursorPosition = newPos;
                 updateCursorPosition();
             }
         }
 
-        // 移动到上一行/下一行
-        function moveCursorToLine(direction) {
-            const text = brailleDisplayEl.textContent;
-            let newPosition = cursorPosition;
-            
-            if (direction < 0) {
-                const beforeCursor = text.slice(0, cursorPosition);
-                const lastNewline = beforeCursor.lastIndexOf('\n');
-                if (lastNewline !== -1) {
-                    const prevNewline = beforeCursor.lastIndexOf('\n', lastNewline - 1);
-                    newPosition = prevNewline !== -1 ? prevNewline + 1 : 0;
+        function moveCursorToLine(delta) {
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            const text = display.textContent || '';
+            let newPos = cursorPosition;
+            if (delta < 0) {
+                const before = text.slice(0, cursorPosition);
+                const lastNL = before.lastIndexOf('\n');
+                if (lastNL !== -1) {
+                    const prevNL = before.lastIndexOf('\n', lastNL-1);
+                    newPos = prevNL !== -1 ? prevNL+1 : 0;
                 }
             } else {
-                const afterCursor = text.slice(cursorPosition);
-                const nextNewline = afterCursor.indexOf('\n');
-                if (nextNewline !== -1) {
-                    newPosition = cursorPosition + nextNewline + 1;
-                    const nextNextNewline = afterCursor.indexOf('\n', nextNewline + 1);
-                    if (nextNextNewline !== -1) {
-                        newPosition = Math.min(newPosition, cursorPosition + nextNextNewline);
-                    } else {
-                        newPosition = text.length;
-                    }
+                const after = text.slice(cursorPosition);
+                const nextNL = after.indexOf('\n');
+                if (nextNL !== -1) {
+                    newPos = cursorPosition + nextNL + 1;
+                    const nextNext = after.indexOf('\n', nextNL+1);
+                    if (nextNext !== -1) newPos = Math.min(newPos, cursorPosition + nextNext);
+                    else newPos = text.length;
                 }
             }
-            
-            cursorPosition = newPosition;
+            cursorPosition = newPos;
             updateCursorPosition();
         }
 
-        // 更新光标位置
         function updateCursorPosition() {
-            const existingCursor = brailleDisplayEl.querySelector('.cursor');
-            if (existingCursor) {
-                existingCursor.remove();
-            }
-            
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            const existing = display.querySelector('.cursor');
+            if (existing) existing.remove();
             const cursor = document.createElement('span');
             cursor.className = 'cursor';
-            
-            const text = brailleDisplayEl.textContent;
-            const beforeCursor = text.slice(0, cursorPosition);
-            const afterCursor = text.slice(cursorPosition);
-            
-            brailleDisplayEl.textContent = beforeCursor;
-            brailleDisplayEl.appendChild(cursor);
-            brailleDisplayEl.appendChild(document.createTextNode(afterCursor));
+            const text = display.textContent || '';
+            const before = text.slice(0, cursorPosition);
+            const after = text.slice(cursorPosition);
+            display.textContent = before;
+            display.appendChild(cursor);
+            display.appendChild(document.createTextNode(after));
         }
 
-        // 处理删除
         function handleBackspace() {
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
             if (cursorPosition > 0) {
-                const text = brailleDisplayEl.textContent;
-                const beforeCursor = text.slice(0, cursorPosition - 1);
-                const afterCursor = text.slice(cursorPosition);
-                
-                brailleDisplayEl.textContent = beforeCursor + afterCursor;
+                const text = display.textContent || '';
+                const before = text.slice(0, cursorPosition-1);
+                const after = text.slice(cursorPosition);
+                display.textContent = before + after;
                 cursorPosition--;
-                
                 updateCursorPosition();
                 updateAllDisplays();
             }
         }
 
-        // 清空盲文
         function clearBraille() {
-            brailleDisplayEl.textContent = '';
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            display.textContent = '';
             cursorPosition = 0;
             updateCursorPosition();
             updateAllDisplays();
         }
 
-        // 更新所有显示
-        function updateAllDisplays() {
-            const brailleText = brailleDisplayEl.textContent.replace(/\u200B/g, '');
-            
-            languages.forEach(lang => {
-                const langDisplayEl = document.getElementById(`textDisplay_${lang}`);
-                if (langDisplayEl) {
-                    let text = '';
-                    
-                    if (lang === 'zh') {
-                        let textArray = [];
-                        for (let i = 0; i < brailleText.length; i++) {
-                            const brailleChar = brailleText[i];
-                            let char = brailleMaps[lang][brailleChar];
-                            
-                            if (char === undefined || char === '') {
-                                textArray.push(`<span class="braille-char undefined">${brailleChar}</span>`);
-                            } else {
-                                char = applyChineseRules(brailleText, i, char, textArray);
-                                textArray.push(char);
-                            }
-                        }
-                        text = textArray.join('');
-                    } else {
-                        for (let i = 0; i < brailleText.length; i++) {
-                            const brailleChar = brailleText[i];
-                            let char = brailleMaps[lang][brailleChar];
-                            
-                            if (char === undefined || char === '') {
-                                text += `<span class="braille-char undefined">${brailleChar}</span>`;
-                            } else {
-                                text += char;
-                            }
-                        }
-                    }
-                    
-                    langDisplayEl.innerHTML = text;
-                }
-            });
-        }
+        // ================================================================
+        //  渲染：盲文框（固定置顶） + 语种框（可拖拽排序）
+        // ================================================================
+        function renderDisplayBoxes() {
+            const oldBraille = document.getElementById('brailleDisplay');
+            const brailleText = oldBraille ? oldBraille.textContent : '';
 
-        // 应用中文变音规则
-        function applyChineseRules(text, index, currentChar, textArray) {
-            // 处理声母变音：ㄍㄎㄏ(gkh)后面遇到以ㄧㄩ开头的韵母时变为ㄐㄑㄒ(jqx)
-            if (index > 0 && ['⠛', '⠅', '⠓'].includes(text[index-1])) {
-                const prevChar = text[index-1];
-                const isYiYuVowel = currentChar && (currentChar[0] === 'ㄧ' || currentChar[0] === 'ㄩ');
-                
-                if (isYiYuVowel) {
-                    if (prevChar === '⠛') textArray[index-1] = 'ㄐ';
-                    if (prevChar === '⠅') textArray[index-1] = 'ㄑ';
-                    if (prevChar === '⠓') textArray[index-1] = 'ㄒ';
-                }
-            }
-            
-            // 处理韵母变音：ㄜ(o)前面遇到声母ㄅㄆㄇㄈ(bpmf)时变为ㄛ(e)
-            if (currentChar === 'ㄜ' && index > 0 && ['⠃', '⠏', '⠍', '⠋'].includes(text[index-1])) {
-                return 'ㄛ';
-            }
-            
-            return currentChar;
-        }
+            displayAreaEl.innerHTML = '';
 
-        // 初始化语言显示框
-        function initLanguageDisplays() {
-            const existingLangDisplays = displayAreaEl.querySelectorAll('.language-box');
-            existingLangDisplays.forEach(box => {
-                if (!box.id.includes('braille')) box.remove();
-            });
-            
+            // 盲文框
+            const brailleBox = document.createElement('div');
+            brailleBox.className = 'display-box';
+            brailleBox.id = 'braille-box';
+            brailleBox.style.cursor = 'default';
+
+            const title = document.createElement('div');
+            title.className = 'display-title';
+            const titleSpan = document.createElement('span');
+            titleSpan.setAttribute('data-i18n','braille_display');
+            titleSpan.textContent = i18n[currentWebLanguage].braille_display;
+            title.appendChild(titleSpan);
+
+            const controls = document.createElement('div');
+            controls.className = 'language-controls';
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'lang-control-btn';
+            copyBtn.setAttribute('data-i18n','copy');
+            copyBtn.textContent = i18n[currentWebLanguage].copy;
+            copyBtn.onclick = copyBraille;
+            controls.appendChild(copyBtn);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'lang-control-btn';
+            delBtn.setAttribute('data-i18n','delete');
+            delBtn.textContent = i18n[currentWebLanguage].delete;
+            delBtn.onclick = handleBackspace;
+            controls.appendChild(delBtn);
+
+            const clearBtnLocal = document.createElement('button');
+            clearBtnLocal.className = 'lang-control-btn';
+            clearBtnLocal.setAttribute('data-i18n','clear');
+            clearBtnLocal.textContent = i18n[currentWebLanguage].clear;
+            clearBtnLocal.onclick = clearBraille;
+            controls.appendChild(clearBtnLocal);
+
+            title.appendChild(controls);
+            brailleBox.appendChild(title);
+
+            const content = document.createElement('div');
+            content.className = 'display-content';
+            content.id = 'brailleDisplay';
+            content.contentEditable = 'true';
+            content.textContent = brailleText;
+            content.onclick = function() {
+                cursorPosition = this.textContent.length;
+                updateCursorPosition();
+            };
+            brailleBox.appendChild(content);
+
+            displayAreaEl.appendChild(brailleBox);
+
+            // 语种框
+            const voiceLang = getActiveVoiceLang();
+
             languages.forEach((lang, index) => {
-                if (index >= 10) return;
-                
-                const langBox = document.createElement('div');
-                langBox.className = 'language-box display-box';
-                langBox.id = `langBox_${lang}`;
-                langBox.setAttribute('draggable', 'true');
-                langBox.setAttribute('data-lang', lang);
-                
-                // 修复：使用统一的语音提示文本生成函数
-                let voiceToggleHtml = '';
-                if (index === 0) {
-                    // 检查当前语种是否支持语音提示（世界语和法语不支持）
-                    if (lang !== 'eo' && lang !== 'fr') {
-                        voiceToggleHtml = `
-                            <button class="lang-control-btn voice-toggle ${voiceEnabled ? 'active' : ''}" 
-                                    onclick="toggleVoice()">${getVoicePromptText()}</button>
-                        `;
-                    }
+                const map = brailleMaps[lang];
+                if (!map) return;
+
+                const box = document.createElement('div');
+                box.className = 'language-box display-box';
+                box.id = `langBox_${lang}`;
+                box.setAttribute('draggable', 'true');
+                box.setAttribute('data-lang', lang);
+
+                const title2 = document.createElement('div');
+                title2.className = 'display-title';
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = map.name;
+                title2.appendChild(nameSpan);
+
+                const controls2 = document.createElement('div');
+                controls2.className = 'language-controls';
+
+                const copyBtn2 = document.createElement('button');
+                copyBtn2.className = 'lang-control-btn';
+                copyBtn2.setAttribute('data-i18n','copy');
+                copyBtn2.textContent = i18n[currentWebLanguage].copy;
+                copyBtn2.onclick = (function(code) {
+                    return function() { copyLanguageText(code); };
+                })(lang);
+                controls2.appendChild(copyBtn2);
+
+                if (lang === voiceLang) {
+                    const vBtn = document.createElement('button');
+                    vBtn.className = `voice-toggle ${voiceEnabled ? 'active' : ''}`;
+                    vBtn.textContent = voiceEnabled ?
+                        i18n[currentWebLanguage].voice_prompt_on :
+                        i18n[currentWebLanguage].voice_prompt_off;
+                    vBtn.onclick = toggleVoice;
+                    controls2.appendChild(vBtn);
                 }
-                
-                langBox.innerHTML = `
-                    <div class="display-title">
-                        <span>${brailleMaps[lang].name}</span>
-                        <div class="language-controls">
-                            ${voiceToggleHtml}
-                            <button class="lang-control-btn" onclick="copyLanguageText('${lang}')" data-i18n="copy">复制</button>
-                            <button class="lang-control-btn" onclick="removeLanguage('${lang}')">×</button>
-                        </div>
-                    </div>
-                    <div class="display-content" id="textDisplay_${lang}"></div>
-                `;
-                
-                langBox.addEventListener('dragstart', handleDragStart);
-                langBox.addEventListener('dragover', handleDragOver);
-                langBox.addEventListener('dragenter', handleDragEnter);
-                langBox.addEventListener('dragleave', handleDragLeave);
-                langBox.addEventListener('drop', handleDrop);
-                langBox.addEventListener('dragend', handleDragEnd);
-                
-                displayAreaEl.appendChild(langBox);
+
+                title2.appendChild(controls2);
+                box.appendChild(title2);
+
+                const content2 = document.createElement('div');
+                content2.className = 'display-content';
+                content2.id = `textDisplay_${lang}`;
+                box.appendChild(content2);
+
+                box.addEventListener('dragstart', handleDragStart);
+                box.addEventListener('dragover', handleDragOver);
+                box.addEventListener('dragenter', handleDragEnter);
+                box.addEventListener('dragleave', handleDragLeave);
+                box.addEventListener('drop', handleDrop);
+                box.addEventListener('dragend', handleDragEnd);
+
+                displayAreaEl.appendChild(box);
             });
-            
+
+            updateCursorPosition();
             updateAllDisplays();
-            initKeyboard();
         }
 
-        // 拖拽相关函数
+        // ================================================================
+        //  拖拽排序
+        // ================================================================
         function handleDragStart(e) {
             dragSrcEl = this;
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.innerHTML);
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-lang'));
             this.classList.add('dragging');
         }
 
         function handleDragOver(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
+            e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             return false;
         }
@@ -1661,54 +1475,132 @@
             this.classList.remove('drag-over');
         }
 
-        // 在 handleDrop 函数中，在重新初始化语言显示后检查：
         function handleDrop(e) {
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            
-            if (dragSrcEl !== this) {
-                const dragLang = dragSrcEl.getAttribute('data-lang');
-                const dropLang = this.getAttribute('data-lang');
-                
-                const dragIndex = languages.indexOf(dragLang);
-                const dropIndex = languages.indexOf(dropLang);
-                
-                [languages[dragIndex], languages[dropIndex]] = [languages[dropIndex], languages[dragIndex]];
-                
-                initLanguageDisplays();
-                
-                // 如果语种1变为不支持语音的语言，关闭语音提示
-                if (languages.length > 0 && (languages[0] === 'eo' || languages[0] === 'fr')) {
-                    voiceEnabled = false;
-                }
-            }
-            
+            e.stopPropagation();
+            e.preventDefault();
+            if (dragSrcEl === this) return;
+            const dragLang = dragSrcEl.getAttribute('data-lang');
+            const dropLang = this.getAttribute('data-lang');
+            const di = languages.indexOf(dragLang);
+            const dd = languages.indexOf(dropLang);
+            if (di === -1 || dd === -1) return;
+            [languages[di], languages[dd]] = [languages[dd], languages[di]];
+            renderDisplayBoxes();
+            renderKeyboard();
             return false;
         }
 
         function handleDragEnd(e) {
-            document.querySelectorAll('.language-box').forEach(box => {
-                box.classList.remove('dragging');
-                box.classList.remove('drag-over');
+            document.querySelectorAll('.language-box').forEach(b => {
+                b.classList.remove('dragging', 'drag-over');
             });
         }
 
-        // 添加语种
+        // ================================================================
+        //  更新所有语种显示（使用状态机统一处理）
+        // ================================================================
+        function updateAllDisplays() {
+            const brailleDisplay = document.getElementById('brailleDisplay');
+            if (!brailleDisplay) return;
+            const brailleText = brailleDisplay.textContent || '';
+
+            languages.forEach(lang => {
+                const el = document.getElementById(`textDisplay_${lang}`);
+                if (!el) return;
+                const map = brailleMaps[lang];
+                if (!map) return;
+
+                let html = '';
+                if (lang === 'ja') {
+                    const parts = [];
+                    for (let i=0; i<brailleText.length; i++) {
+                        const result = processCombo(brailleText, i, lang);
+                        parts.push(result.char);
+                        if (result.skip) i++;
+                    }
+                    html = parts.join('');
+                } else if (lang === 'zh') {
+                    const parts = [];
+                    for (let i=0; i<brailleText.length; i++) {
+                        const result = processCombo(brailleText, i, lang);
+                        parts.push(result.char);
+                        if (result.skip) i++;
+                    }
+                    html = parts.join('');
+                } else {
+                    const parts = [];
+                    for (let i=0; i<brailleText.length; i++) {
+                        const result = processCombo(brailleText, i, lang);
+                        parts.push(result.char);
+                        if (result.skip) i++;
+                    }
+                    html = parts.join('');
+                }
+                el.innerHTML = html || '&nbsp;';
+            });
+        }
+
+        // ================================================================
+        //  复制功能
+        // ================================================================
+        function copyBraille() {
+            const display = document.getElementById('brailleDisplay');
+            if (!display) return;
+            const text = display.textContent || '';
+            navigator.clipboard.writeText(text).then(() => alert(i18n[currentWebLanguage].copied_done)).catch(()=>{});
+        }
+
+        function copyLanguageText(lang) {
+            const brailleDisplay = document.getElementById('brailleDisplay');
+            if (!brailleDisplay) return;
+            const brailleText = brailleDisplay.textContent || '';
+            const map = brailleMaps[lang];
+            if (!map) return;
+            let text = '';
+            const parts = [];
+            for (let i=0; i<brailleText.length; i++) {
+                const result = processCombo(brailleText, i, lang);
+                parts.push(result.char);
+                if (result.skip) i++;
+            }
+            text = parts.join('');
+            navigator.clipboard.writeText(text).then(() => alert(i18n[currentWebLanguage].copied_done)).catch(()=>{});
+        }
+
+        // ================================================================
+        //  语音切换
+        // ================================================================
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            renderDisplayBoxes();
+            renderKeyboard();
+        }
+
+        function speakText(text, lang) {
+            if (!window.speechSynthesis) return;
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.lang = lang === 'zh' ? 'zh-CN' :
+                       lang === 'ja' ? 'ja-JP' :
+                       lang === 'ru' ? 'ru-RU' :
+                       lang === 'es' ? 'es-ES' : 'en-US';
+            utt.rate = 0.8;
+            speechSynthesis.speak(utt);
+        }
+
+        // ================================================================
+        //  添加语种
+        // ================================================================
         function addLanguage() {
             if (languages.length >= 10) {
                 alert(i18n[currentWebLanguage].max_ten_lang);
                 return;
             }
-            
             const dialog = document.createElement('div');
             dialog.className = 'language-dialog';
-            
             const content = document.createElement('div');
             content.className = 'language-dialog-content';
-            
             content.innerHTML = `
-                <h3 data-i18n="select_language">${i18n[currentWebLanguage].select_language}</h3>
+                <h3>${i18n[currentWebLanguage].select_language}</h3>
                 <div class="language-options">
                     ${Object.entries(brailleMaps).map(([code, lang]) => `
                         <div class="language-option" data-lang="${code}">
@@ -1716,187 +1608,86 @@
                         </div>
                     `).join('')}
                 </div>
-                <button class="action-btn" style="margin-top: 15px;">${i18n[currentWebLanguage].cancel}</button>
+                <button class="action-btn" style="margin-top:15px;">${i18n[currentWebLanguage].cancel}</button>
             `;
-            
             dialog.appendChild(content);
             document.body.appendChild(dialog);
-            
-            // 在选择语种后的回调中添加：
             content.querySelector('.language-options').addEventListener('click', (e) => {
-                const option = e.target.closest('.language-option');
-                if (option) {
-                    const langCode = option.getAttribute('data-lang');
-                    languages.push(langCode);
-                    initLanguageDisplays();
-                    
-                    // 如果添加的语种是第一个且不支持语音，关闭语音提示
-                    if (languages.length === 1 && (langCode === 'eo' || langCode === 'fr')) {
-                        voiceEnabled = false;
+                const opt = e.target.closest('.language-option');
+                if (opt) {
+                    const code = opt.getAttribute('data-lang');
+                    if (!languages.includes(code)) {
+                        languages.push(code);
+                        renderDisplayBoxes();
+                        renderKeyboard();
                     }
-                    
                     document.body.removeChild(dialog);
                 }
             });
-            
             content.querySelector('.action-btn').addEventListener('click', () => {
                 document.body.removeChild(dialog);
             });
         }
 
-        // 移除语种
-        function removeLanguage(lang) {
-            if (languages.length > 0) {
-                const index = languages.indexOf(lang);
-                if (index !== -1) {
-                    languages.splice(index, 1);
-                    initLanguageDisplays();
-                }
-            }
-        }
-
-        // 切换语音提示
-        function toggleVoice() {
-            voiceEnabled = !voiceEnabled;
-            const voiceToggle = document.querySelector('.voice-toggle');
-            if (voiceToggle) {
-                // 修复：使用统一的语音提示文本生成函数
-                voiceToggle.textContent = getVoicePromptText();
-                voiceToggle.classList.toggle('active', voiceEnabled);
-            }
-        }
-
-        // 语音合成
-        function speakText(text, lang) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = lang === 'zh' ? 'zh-CN' : (lang === 'ru' ? 'ru-RU' : 'en-US');
-                utterance.rate = 0.8;
-                speechSynthesis.speak(utterance);
-            }
-        }
-
-        // 复制盲文
-        function copyBraille() {
-            const brailleText = brailleDisplayEl.textContent.replace(/\u200B/g, '');
-            navigator.clipboard.writeText(brailleText).then(() => {
-                alert(i18n[currentWebLanguage].copied_done);
-            });
-        }
-
-        // 复制语言文本
-        function copyLanguageText(lang) {
-            const brailleText = brailleDisplayEl.textContent.replace(/\u200B/g, '');
-            let text = '';
-            
-            if (lang === 'zh') {
-                let textArray = [];
-                for (let i = 0; i < brailleText.length; i++) {
-                    const brailleChar = brailleText[i];
-                    let char = brailleMaps[lang][brailleChar];
-                    
-                    if (char === undefined || char === '') {
-                        textArray.push(brailleChar);
-                    } else {
-                        char = applyChineseRules(brailleText, i, char, textArray);
-                        textArray.push(char);
-                    }
-                }
-                text = textArray.join('');
-            } else {
-                for (let i = 0; i < brailleText.length; i++) {
-                    const brailleChar = brailleText[i];
-                    let char = brailleMaps[lang][brailleChar];
-                    text += char || brailleChar;
-                }
-            }
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert(i18n[currentWebLanguage].copied_done);
-            });
-        }
-
-        // 初始化事件监听
-        function initEventListeners() {
-            document.getElementById('clearBtn').addEventListener('click', clearBraille);
-            document.getElementById('addLangBtn').addEventListener('click', addLanguage);
-            
-            langSwitchEl.addEventListener('change', (e) => {
-                switchWebLanguage(e.target.value);
-            });
-            
-            brailleDisplayEl.addEventListener('click', (e) => {
-                const text = brailleDisplayEl.textContent;
-                cursorPosition = text.length;
-                updateCursorPosition();
-            });
-            
-            resizeHandleEl.addEventListener('mousedown', startResize);
-        }
-
-        // 开始调整宽度
+        // ================================================================
+        //  宽度调整
+        // ================================================================
         function startResize(e) {
             isResizing = true;
             document.addEventListener('mousemove', handleResize);
             document.addEventListener('mouseup', stopResize);
         }
-
-        // 处理宽度调整
         function handleResize(e) {
             if (!isResizing) return;
-            
-            const containerRect = document.querySelector('.container').getBoundingClientRect();
-            const newWidth = e.clientX - containerRect.left;
-            
-            if (newWidth > 250 && newWidth < containerRect.width * 0.8) {
-                inputSectionEl.style.width = `${newWidth}px`;
+            const rect = document.querySelector('.container').getBoundingClientRect();
+            const w = e.clientX - rect.left;
+            if (w > 200 && w < rect.width * 0.75) {
+                inputSectionEl.style.width = w + 'px';
             }
         }
-
-        // 停止调整宽度
         function stopResize() {
             isResizing = false;
             document.removeEventListener('mousemove', handleResize);
             document.removeEventListener('mouseup', stopResize);
         }
 
-        // 切换网页语言
+        // ================================================================
+        //  网页语言切换
+        // ================================================================
         function switchWebLanguage(lang) {
             currentWebLanguage = lang;
             document.documentElement.lang = lang;
-            
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
                 if (i18n[lang] && i18n[lang][key]) {
-                    element.textContent = i18n[lang][key];
+                    el.textContent = i18n[lang][key];
                 }
             });
-            
-            // 更新语音提示按钮文本（如果存在）
-            const voiceToggle = document.querySelector('.voice-toggle');
-            if (voiceToggle && languages.length > 0) {
-                const mainLang = languages[0];
-                // 只有当语种1支持语音提示时才更新按钮文本
-                if (mainLang !== 'eo' && mainLang !== 'fr') {
-                    // 修复：使用统一的语音提示文本生成函数
-                    voiceToggle.textContent = getVoicePromptText();
-                }
-            }
-            
-            initKeyboard();
+            renderKeyboard();
+            renderDisplayBoxes();
+            renderSchema();
         }
 
-        // 初始化应用
+        // ================================================================
+        //  初始化
+        // ================================================================
         function initApp() {
-            initKeyboard();
-            initLanguageDisplays();
-            initEventListeners();
-            updateCursorPosition();
-            
+            languages = [...DEFAULT_LANGS];
+            renderSchema();
+            renderKeyboard();
+            renderDisplayBoxes();
+            setTimeout(updateCursorPosition, 50);
+
+            addLangBtn.addEventListener('click', addLanguage);
+            clearBtn.addEventListener('click', clearBraille);
+            langSwitchEl.addEventListener('change', (e) => {
+                switchWebLanguage(e.target.value);
+            });
+            resizeHandleEl.addEventListener('mousedown', startResize);
+
             switchWebLanguage('zh-CN');
         }
 
-        // 启动应用
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
